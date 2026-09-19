@@ -317,25 +317,25 @@
         
         <!-- Table container with smooth scroll -->
         <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse text-xs whitespace-nowrap sm:whitespace-normal">
+          <table class="min-w-full text-left border-collapse text-xs">
             <thead>
-              <tr class="border-b border-white/[0.06] bg-white/[0.015] text-slate-400 font-semibold tracking-wider text-[11px]">
+              <tr class="border-b border-white/[0.06] bg-white/[0.015] text-slate-400 font-semibold tracking-wider text-[11px] whitespace-nowrap">
                 <th class="py-4 px-4 w-12 text-center">#</th>
-                <th class="py-4 px-4 cursor-pointer hover:text-white transition group min-w-[220px]" onclick="toggleSort('full_name')">
+                <th class="py-4 px-4 cursor-pointer hover:text-white transition group min-w-[260px]" onclick="toggleSort('full_name')">
                   <div class="flex items-center gap-1.5">
                     <span>Repository</span>
                     <i data-lucide="chevrons-up-down" class="w-3 h-3 text-slate-400 group-hover:text-white transition"></i>
                   </div>
                 </th>
-                <th class="py-4 px-4 w-32">Ngôn Ngữ</th>
-                <th class="py-4 px-4 w-44 cursor-pointer hover:text-amber-300 transition text-center" onclick="toggleSort('total_appearances')">
+                <th class="py-4 px-4 w-28">Ngôn Ngữ</th>
+                <th class="py-4 px-4 w-40 cursor-pointer hover:text-amber-300 transition text-center" onclick="toggleSort('total_appearances')">
                   <div class="flex items-center justify-center gap-1 text-amber-400 font-bold">
                     <i data-lucide="flame" class="w-3.5 h-3.5 text-amber-400"></i>
                     <span>Số Lần Xuất Hiện</span>
                     <span id="sort-icon-total_appearances" class="text-[10px]">▼</span>
                   </div>
                 </th>
-                <th class="py-4 px-4 w-32 cursor-pointer hover:text-white transition" onclick="toggleSort('current_stars')">
+                <th class="py-4 px-4 w-28 cursor-pointer hover:text-white transition" onclick="toggleSort('current_stars')">
                   <div class="flex items-center gap-1">
                     <i data-lucide="star" class="w-3 h-3 text-yellow-400"></i>
                     <span>Tổng Stars</span>
@@ -344,13 +344,13 @@
                 </th>
                 <th class="py-4 px-4 w-24">Forks</th>
                 <th class="py-4 px-4 w-40">Tăng Kỳ Này</th>
-                <th class="py-4 px-4 w-32 cursor-pointer hover:text-white transition hidden md:table-cell" onclick="toggleSort('last_seen_at')">
+                <th class="py-4 px-4 w-28 cursor-pointer hover:text-white transition hidden md:table-cell" onclick="toggleSort('last_seen_at')">
                   <div class="flex items-center gap-1">
                     <span>Lần Cuối Thấy</span>
                     <span id="sort-icon-last_seen_at" class="text-[10px]"></span>
                   </div>
                 </th>
-                <th class="py-4 px-4 w-20 text-center">Chi Tiết</th>
+                <th class="py-4 px-4 w-16 text-center">Chi Tiết</th>
               </tr>
             </thead>
             <tbody id="repo-table-body" class="divide-y divide-white/[0.04]">
@@ -669,21 +669,21 @@
         let occBadge = '';
         if (repo.total_appearances >= 3) {
           occBadge = `
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-[0_0_12px_rgba(245,158,11,0.15)]">
+            <span class="inline-flex items-center whitespace-nowrap gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-[0_0_12px_rgba(245,158,11,0.15)]">
               <i data-lucide="flame" class="w-3.5 h-3.5 text-amber-400"></i>
               <span>${repo.total_appearances} lần</span>
             </span>
           `;
         } else if (repo.total_appearances === 2) {
           occBadge = `
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.12)]">
+            <span class="inline-flex items-center whitespace-nowrap gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.12)]">
               <i data-lucide="zap" class="w-3.5 h-3.5 text-emerald-400"></i>
               <span>${repo.total_appearances} lần</span>
             </span>
           `;
         } else {
           occBadge = `
-            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium text-slate-300 bg-white/[0.04] border border-white/[0.08]">
+            <span class="inline-flex items-center whitespace-nowrap gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium text-slate-300 bg-white/[0.04] border border-white/[0.08]">
               <span>${repo.total_appearances} lần</span>
             </span>
           `;
@@ -692,11 +692,11 @@
         // Language indicator with authentic color dot
         const langColor = repo.language_color || '#8b949e';
         const langHtml = repo.language ? `
-          <div class="inline-flex items-center gap-1.5 text-slate-200 text-xs">
+          <div class="inline-flex items-center gap-1.5 text-slate-200 text-xs whitespace-nowrap">
             <span class="w-2 h-2 rounded-full inline-block flex-shrink-0" style="background-color: ${langColor}; box-shadow: 0 0 6px ${langColor}60"></span>
             <span class="truncate">${repo.language}</span>
           </div>
-        ` : `<span class="text-slate-500 text-xs italic">Chưa rõ</span>`;
+        ` : `<span class="text-slate-500 text-xs italic whitespace-nowrap">Chưa rõ</span>`;
 
         // Stars & Forks
         const starsFormatted = repo.current_stars ? repo.current_stars.toLocaleString() : "0";
@@ -710,21 +710,21 @@
 
         return `
           <tr class="hover:bg-white/[0.025] transition-colors duration-200 group">
-            <td class="py-3.5 px-4 text-center font-mono text-slate-500 text-xs">${rankNumber}</td>
-            <td class="py-3.5 px-4">
-              <div class="space-y-0.5">
-                <a href="${repo.url}" target="_blank" class="font-semibold text-slate-100 hover:text-emerald-400 flex items-center gap-1.5 transition">
-                  <span class="text-slate-400 font-normal">${repo.owner} /</span>
-                  <span>${repo.name}</span>
-                  <i data-lucide="external-link" class="w-3 h-3 opacity-0 group-hover:opacity-100 transition text-emerald-400"></i>
+            <td class="py-3.5 px-4 text-center font-mono text-slate-500 text-xs whitespace-nowrap">${rankNumber}</td>
+            <td class="py-3.5 px-4 min-w-[240px] max-w-sm">
+              <div class="space-y-1">
+                <a href="${repo.url}" target="_blank" class="font-semibold text-slate-100 hover:text-emerald-400 inline-flex items-center gap-1.5 transition group">
+                  <span class="text-slate-400 font-normal whitespace-nowrap">${repo.owner}&nbsp;/</span>
+                  <span class="font-bold text-slate-100 group-hover:text-emerald-400 transition">${repo.name}</span>
+                  <i data-lucide="external-link" class="w-3 h-3 opacity-0 group-hover:opacity-100 transition text-emerald-400 flex-shrink-0"></i>
                 </a>
-                <p class="text-[11px] text-slate-400 line-clamp-1 max-w-sm sm:max-w-md font-light">${repo.description || 'Không có mô tả'}</p>
+                <p class="text-[11px] text-slate-400 line-clamp-1 font-light max-w-xs sm:max-w-md">${repo.description || 'Không có mô tả'}</p>
               </div>
             </td>
-            <td class="py-3.5 px-4">${langHtml}</td>
-            <td class="py-3.5 px-4 text-center">
+            <td class="py-3.5 px-4 whitespace-nowrap">${langHtml}</td>
+            <td class="py-3.5 px-4 text-center whitespace-nowrap">
               ${occBadge}
-              <div class="text-[10px] text-slate-500 font-mono mt-1 flex justify-center gap-1.5">
+              <div class="text-[10px] text-slate-500 font-mono mt-1 flex items-center justify-center gap-1.5">
                 <span title="Số lần daily">D:${repo.daily_appearances}</span>
                 <span class="opacity-40">•</span>
                 <span title="Số lần weekly">W:${repo.weekly_appearances}</span>
@@ -732,27 +732,27 @@
                 <span title="Số lần monthly">M:${repo.monthly_appearances}</span>
               </div>
             </td>
-            <td class="py-3.5 px-4 font-medium text-slate-200">
-              <div class="flex items-center gap-1">
+            <td class="py-3.5 px-4 font-medium text-slate-200 whitespace-nowrap">
+              <div class="inline-flex items-center gap-1.5">
                 <i data-lucide="star" class="w-3.5 h-3.5 text-yellow-400 fill-yellow-400"></i>
                 <span>${starsFormatted}</span>
               </div>
             </td>
-            <td class="py-3.5 px-4 text-slate-400">
-              <div class="flex items-center gap-1">
+            <td class="py-3.5 px-4 text-slate-400 whitespace-nowrap">
+              <div class="inline-flex items-center gap-1.5">
                 <i data-lucide="git-fork" class="w-3.5 h-3.5 text-slate-400"></i>
                 <span>${forksFormatted}</span>
               </div>
             </td>
-            <td class="py-3.5 px-4">
-              <span class="text-emerald-400 text-xs font-medium bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+            <td class="py-3.5 px-4 whitespace-nowrap">
+              <span class="inline-flex items-center whitespace-nowrap text-emerald-400 text-[11px] font-medium bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20 shadow-[0_0_8px_rgba(16,185,129,0.08)]">
                 ${periodStars}
               </span>
             </td>
-            <td class="py-3.5 px-4 text-slate-400 text-xs hidden md:table-cell">
+            <td class="py-3.5 px-4 text-slate-400 text-xs whitespace-nowrap hidden md:table-cell">
               ${lastSeen}
             </td>
-            <td class="py-3.5 px-4 text-center">
+            <td class="py-3.5 px-4 text-center whitespace-nowrap">
               <button 
                 onclick="openDetailModal(${repo.id})" 
                 class="p-1.5 text-slate-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.1] rounded-full border border-white/[0.08] transition" 
