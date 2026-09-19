@@ -1,19 +1,38 @@
-import os
 import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 from fastapi.testclient import TestClient
-from app.main import app
-from app.database import Base, engine, SessionLocal
-from app.models import Repository
 
+from app.database import Base, get_db
+from app.main import app
+
+# Sử dụng DB in-memory với StaticPool để chia sẻ bộ nhớ an toàn cho TestClient
+test_engine = create_engine(
+    "sqlite:///:memory:",
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+)
+TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+
+
+def override_get_db():
+    db = TestSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+app.dependency_overrides[get_db] = override_get_db
 client = TestClient(app)
 
 
 @pytest.fixture(autouse=True)
 def setup_database():
-    Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=test_engine)
     yield
-    Base.metadata.drop_all(bind=engine)
+    Base.metadata.drop_all(bind=test_engine)
 
 
 def test_index_page():
@@ -39,7 +58,6 @@ def test_seed_demo_and_query_repositories():
     items = repo_data["items"]
     assert len(items) > 0
 
-    # The seeded items were simulated over 3 days -> occurrence count should be 3
     first_item = items[0]
     assert first_item["total_appearances"] == 3
     assert first_item["daily_appearances"] == 3
