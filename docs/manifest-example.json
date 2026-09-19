@@ -1,0 +1,59 @@
+{
+  "manifest_version": 3,
+  "name": "Gem Exporter",
+  "version": "1.21",
+  "description": "Export Gemini and DeepSeek chats to JSON, JSONL, or Markdown with auto-scroll parsing.",
+  "permissions": [
+    "activeTab",
+    "downloads",
+    "storage",
+    "webRequest"
+  ],
+  "host_permissions": [
+    "https://gemini.google.com/*",
+    "https://*.deepseek.com/*",
+    "https://*.google.com/*",
+    "https://*.google.com.vn/*",
+    "file:///*"
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "gemini-exporter@vxn.local",
+      "strict_min_version": "142.0",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    }
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon.svg",
+      "32": "icons/icon.svg",
+      "48": "icons/icon.svg",
+      "128": "icons/icon.svg"
+    }
+  },
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://gemini.google.com/*",
+        "https://*.deepseek.com/*",
+        "https://*.google.com/*",
+        "https://*.google.com.vn/*",
+        "file:///*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

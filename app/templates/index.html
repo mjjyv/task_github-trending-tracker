@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full bg-slate-900 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Trending Tracker - Thống Kê & Bảng Xếp Hạng</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+  </style>
+</head>
+<body class="h-full flex flex-col font-sans antialiased text-slate-200">
+
+  <!-- TOP NAVBAR -->
+  <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+          <i data-lucide="github" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+            GitHub Trending Tracker
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/60">v1.0</span>
+          </h1>
+          <p class="text-xs text-slate-400">Theo dõi xu hướng & thống kê số lần xuất hiện của các repository</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <button id="btn-seed-demo" onclick="seedDemoData()" title="Mô phỏng dữ liệu cào qua 3 ngày liên tiếp để kiểm tra số lần xuất hiện 1 -> 2 -> 3" class="px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
+          <span>Nạp Demo (3 Ngày)</span>
+        </button>
+
+        <button onclick="openSessionsModal()" class="px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="history" class="w-4 h-4 text-cyan-400"></i>
+          <span>Lịch Sử Cào</span>
+        </button>
+
+        <div class="relative inline-block text-left" id="crawl-dropdown-wrapper">
+          <button onclick="toggleCrawlDropdown()" class="px-4 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white rounded-lg shadow-lg shadow-emerald-600/30 transition flex items-center gap-1.5">
+            <i data-lucide="refresh-cw" id="crawl-icon" class="w-4 h-4"></i>
+            <span>Cào Dữ Liệu Ngay</span>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+          </button>
+          
+          <div id="crawl-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-xl bg-slate-900 border border-slate-800 shadow-2xl z-50 p-1">
+            <button onclick="triggerCrawl('daily')" class="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-800 rounded-lg flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span>Cào Daily (Hôm nay)</span>
+            </button>
+            <button onclick="triggerCrawl('weekly')" class="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-800 rounded-lg flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+              <span>Cào Weekly (Tuần này)</span>
+            </button>
+            <button onclick="triggerCrawl('monthly')" class="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-800 rounded-lg flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+              <span>Cào Monthly (Tháng này)</span>
+            </button>
+            <div class="border-t border-slate-800 my-1"></div>
+            <button onclick="triggerCrawl('daily', true)" class="w-full text-left px-3 py-2 text-xs text-amber-300 hover:bg-slate-800 rounded-lg flex items-center gap-2" title="Ép buộc tăng +1 lần xuất hiện kể cả khi đã cào cùng ngày">
+              <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span>Cào ép buộc (+1 count)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-6">
+
+    <!-- STATS CARDS -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+        <div>
+          <p class="text-xs font-medium text-slate-400">Tổng Repositories</p>
+          <p class="text-2xl font-bold text-white mt-1" id="stat-total-repos">-</p>
+          <p class="text-[11px] text-slate-400 mt-0.5">Đã được lập chỉ mục</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center">
+          <i data-lucide="boxes" class="w-6 h-6"></i>
+        </div>
+      </div>
+
+      <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+        <div>
+          <p class="text-xs font-medium text-slate-400">Xuất Hiện Lặp Lại (&ge; 2 lần)</p>
+          <p class="text-2xl font-bold text-amber-400 mt-1" id="stat-repeated-repos">-</p>
+          <p class="text-[11px] text-slate-400 mt-0.5">Duy trì xu hướng bền bỉ</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center">
+          <i data-lucide="flame" class="w-6 h-6"></i>
+        </div>
+      </div>
+
+      <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+        <div>
+          <p class="text-xs font-medium text-slate-400">Số Đợt Cào Đã Chạy</p>
+          <p class="text-2xl font-bold text-emerald-400 mt-1" id="stat-total-sessions">-</p>
+          <p class="text-[11px] text-slate-400 mt-0.5">Bao gồm tự động & thủ công</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
+          <i data-lucide="activity" class="w-6 h-6"></i>
+        </div>
+      </div>
+
+      <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+        <div>
+          <p class="text-xs font-medium text-slate-400">Top Ngôn Ngữ</p>
+          <p class="text-sm font-semibold text-purple-300 mt-1 truncate" id="stat-top-language">-</p>
+          <p class="text-[11px] text-slate-400 mt-0.5">Chiếm tỉ trọng trending cao</p>
+        </div>
+        <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center">
+          <i data-lucide="code-2" class="w-6 h-6"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTROLS & FILTERS -->
+    <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4 shadow-sm space-y-4">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        
+        <!-- Search bar -->
+        <div class="relative flex-1 max-w-md">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Tìm theo tên repo, tác giả hoặc mô tả..."
+            class="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition"
+            oninput="handleSearchInput()"
+          >
+        </div>
+
+        <!-- Filter Timeframe Tabs -->
+        <div class="flex items-center bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs font-medium">
+          <button onclick="setTimeframeFilter('all')" id="tab-all" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white shadow-sm transition">Tất Cả</button>
+          <button onclick="setTimeframeFilter('daily')" id="tab-daily" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">⚡ Daily</button>
+          <button onclick="setTimeframeFilter('weekly')" id="tab-weekly" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">📅 Weekly</button>
+          <button onclick="setTimeframeFilter('monthly')" id="tab-monthly" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">🌟 Monthly</button>
+        </div>
+
+        <!-- Language & Repeat Filters -->
+        <div class="flex items-center gap-2.5">
+          <select id="lang-select" onchange="handleFilterChange()" class="bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 py-2 px-3 focus:outline-none focus:border-emerald-500">
+            <option value="all">Tất cả ngôn ngữ</option>
+          </select>
+
+          <label class="flex items-center gap-2 cursor-pointer bg-slate-900 hover:bg-slate-850 px-3 py-2 border border-slate-800 rounded-xl text-xs select-none">
+            <input type="checkbox" id="filter-repeated" onchange="handleFilterChange()" class="w-3.5 h-3.5 rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-0">
+            <span class="text-amber-300 font-medium">≥ 2 lần</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN TABLE SECTION -->
+    <div class="bg-slate-950/80 border border-slate-800 rounded-2xl shadow-xl overflow-hidden flex flex-col">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="border-b border-slate-800 bg-slate-900/60 text-slate-400 font-semibold uppercase tracking-wider">
+              <th class="py-3.5 px-4 w-12 text-center">#</th>
+              <th class="py-3.5 px-4 cursor-pointer hover:text-white transition" onclick="toggleSort('full_name')">
+                <div class="flex items-center gap-1.5">
+                  <span>Repository</span>
+                  <i data-lucide="chevrons-up-down" class="w-3.5 h-3.5"></i>
+                </div>
+              </th>
+              <th class="py-3.5 px-4 w-32">Ngôn Ngữ</th>
+              <th class="py-3.5 px-4 w-44 cursor-pointer hover:text-amber-300 transition text-center" onclick="toggleSort('total_appearances')">
+                <div class="flex items-center justify-center gap-1 text-amber-400 font-bold">
+                  <i data-lucide="flame" class="w-3.5 h-3.5"></i>
+                  <span>Số Lần Xuất Hiện</span>
+                  <span id="sort-icon-total_appearances">▼</span>
+                </div>
+              </th>
+              <th class="py-3.5 px-4 w-36 cursor-pointer hover:text-white transition" onclick="toggleSort('current_stars')">
+                <div class="flex items-center gap-1">
+                  <i data-lucide="star" class="w-3.5 h-3.5 text-yellow-400"></i>
+                  <span>Tổng Stars</span>
+                  <span id="sort-icon-current_stars"></span>
+                </div>
+              </th>
+              <th class="py-3.5 px-4 w-28">Forks</th>
+              <th class="py-3.5 px-4 w-44">Tăng Giai Đoạn</th>
+              <th class="py-3.5 px-4 w-40 cursor-pointer hover:text-white transition" onclick="toggleSort('last_seen_at')">
+                <div class="flex items-center gap-1">
+                  <span>Lần Cuối Thấy</span>
+                  <span id="sort-icon-last_seen_at"></span>
+                </div>
+              </th>
+              <th class="py-3.5 px-4 w-24 text-center">Chi Tiết</th>
+            </tr>
+          </thead>
+          <tbody id="repo-table-body" class="divide-y divide-slate-800/60">
+            <!-- Table rows will be populated by JS -->
+            <tr>
+              <td colspan="9" class="py-12 text-center text-slate-500">
+                <div class="flex flex-col items-center justify-center space-y-2">
+                  <i data-lucide="loader" class="w-6 h-6 animate-spin text-emerald-500"></i>
+                  <p>Đang tải dữ liệu repository...</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PAGINATION FOOTER -->
+      <div class="border-t border-slate-800 bg-slate-900/40 px-4 py-3 flex items-center justify-between">
+        <div class="text-xs text-slate-400" id="pagination-info">
+          Hiển thị 0 trên 0 repository
+        </div>
+        <div class="flex items-center space-x-2">
+          <button id="btn-prev-page" onclick="changePage(-1)" class="px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-slate-300 rounded-lg border border-slate-700 transition flex items-center gap-1">
+            <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+            <span>Trước</span>
+          </button>
+          <span id="current-page-label" class="text-xs font-semibold px-2 text-slate-300">Trang 1 / 1</span>
+          <button id="btn-next-page" onclick="changePage(1)" class="px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-slate-300 rounded-lg border border-slate-700 transition flex items-center gap-1">
+            <span>Sau</span>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL: REPO HISTORY & DETAILS -->
+  <div id="repo-detail-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative space-y-4">
+      <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div id="modal-repo-header" class="space-y-1 pr-8">
+        <!-- Injected via JS -->
+      </div>
+
+      <div class="border-t border-slate-800 pt-4">
+        <h3 class="text-sm font-semibold text-slate-200 flex items-center gap-2 mb-3">
+          <i data-lucide="calendar-check" class="w-4 h-4 text-emerald-400"></i>
+          <span>Lịch Sử Xuất Hiện Qua Các Ngày Cào</span>
+        </h3>
+        <div class="max-h-72 overflow-y-auto border border-slate-800 rounded-xl bg-slate-950/60 p-2">
+          <table class="w-full text-xs text-left">
+            <thead>
+              <tr class="text-slate-400 border-b border-slate-800">
+                <th class="p-2">Ngày cào</th>
+                <th class="p-2">Mốc (Since)</th>
+                <th class="p-2">Hạng (Rank)</th>
+                <th class="p-2">Số Stars</th>
+                <th class="p-2">Tăng thêm</th>
+              </tr>
+            </thead>
+            <tbody id="modal-snapshot-body" class="divide-y divide-slate-800/60 text-slate-300">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-2">
+        <button onclick="closeDetailModal()" class="px-4 py-2 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CRAWL SESSIONS -->
+  <div id="sessions-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative space-y-4">
+      <button onclick="closeSessionsModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="space-y-1">
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="activity" class="w-5 h-5 text-cyan-400"></i>
+          <span>Nhật Ký Các Phiên Cào Dữ Liệu</span>
+        </h2>
+        <p class="text-xs text-slate-400">Danh sách các lần hệ thống tự động hoặc người dùng kích hoạt cào GitHub Trending.</p>
+      </div>
+
+      <div class="max-h-80 overflow-y-auto border border-slate-800 rounded-xl bg-slate-950/60 p-2">
+        <table class="w-full text-xs text-left">
+          <thead>
+            <tr class="text-slate-400 border-b border-slate-800">
+              <th class="p-2">ID</th>
+              <th class="p-2">Mốc (Since)</th>
+              <th class="p-2">Thời gian</th>
+              <th class="p-2">Loại</th>
+              <th class="p-2">Số Repos</th>
+              <th class="p-2">Trạng thái</th>
+            </tr>
+          </thead>
+          <tbody id="modal-sessions-body" class="divide-y divide-slate-800/60 text-slate-300">
+            <!-- Injected via JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flex justify-end pt-2">
+        <button onclick="closeSessionsModal()" class="px-4 py-2 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+    <div id="toast-content" class="px-4 py-3 rounded-xl shadow-xl flex items-center gap-2.5 text-xs font-medium border bg-slate-900 border-slate-700 text-white">
+      <i id="toast-icon" data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+      <span id="toast-msg">Thông báo</span>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    let state = {
+      page: 1,
+      pageSize: 25,
+      totalPages: 1,
+      total: 0,
+      search: "",
+      since: "all",
+      language: "all",
+      minAppearances: null,
+      sortBy: "total_appearances",
+      sortDir: "desc",
+      isLoading: false
+    };
+
+    let searchDebounceTimeout = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      loadStats();
+      loadLanguages();
+      loadRepositories();
+
+      // Click outside dropdown to close
+      document.addEventListener("click", (e) => {
+        const wrapper = document.getElementById("crawl-dropdown-wrapper");
+        if (wrapper && !wrapper.contains(e.target)) {
+          document.getElementById("crawl-dropdown").classList.add("hidden");
+        }
+      });
+    });
+
+    function showToast(msg, type = "success") {
+      const toast = document.getElementById("toast");
+      const toastContent = document.getElementById("toast-content");
+      const toastMsg = document.getElementById("toast-msg");
+      const toastIcon = document.getElementById("toast-icon");
+
+      toastMsg.textContent = msg;
+      if (type === "success") {
+        toastContent.className = "px-4 py-3 rounded-xl shadow-xl flex items-center gap-2.5 text-xs font-medium border bg-emerald-950/90 border-emerald-700 text-emerald-200";
+        toastIcon.setAttribute("data-lucide", "check-circle");
+        toastIcon.className = "w-4 h-4 text-emerald-400";
+      } else {
+        toastContent.className = "px-4 py-3 rounded-xl shadow-xl flex items-center gap-2.5 text-xs font-medium border bg-rose-950/90 border-rose-700 text-rose-200";
+        toastIcon.setAttribute("data-lucide", "alert-circle");
+        toastIcon.className = "w-4 h-4 text-rose-400";
+      }
+      lucide.createIcons();
+
+      toast.classList.remove("translate-y-20", "opacity-0", "pointer-events-none");
+      setTimeout(() => {
+        toast.classList.add("translate-y-20", "opacity-0", "pointer-events-none");
+      }, 3500);
+    }
+
+    function toggleCrawlDropdown() {
+      const dropdown = document.getElementById("crawl-dropdown");
+      dropdown.classList.toggle("hidden");
+    }
+
+    async function loadStats() {
+      try {
+        const res = await fetch("/api/stats/summary");
+        if (!res.ok) return;
+        const data = await res.json();
+        document.getElementById("stat-total-repos").textContent = data.total_repositories.toLocaleString();
+        document.getElementById("stat-repeated-repos").textContent = data.repeated_repositories_count.toLocaleString();
+        document.getElementById("stat-total-sessions").textContent = data.total_crawl_sessions.toLocaleString();
+
+        if (data.top_languages && data.top_languages.length > 0) {
+          document.getElementById("stat-top-language").textContent = data.top_languages.map(l => `${l.language} (${l.count})`).slice(0, 2).join(", ");
+        } else {
+          document.getElementById("stat-top-language").textContent = "Chưa có dữ liệu";
+        }
+      } catch (e) {
+        console.error("Lỗi khi tải stats:", e);
+      }
+    }
+
+    async function loadLanguages() {
+      try {
+        const res = await fetch("/api/languages");
+        if (!res.ok) return;
+        const list = await res.json();
+        const select = document.getElementById("lang-select");
+        select.innerHTML = '<option value="all">Tất cả ngôn ngữ</option>';
+        list.forEach(item => {
+          const opt = document.createElement("option");
+          opt.value = item.language;
+          opt.textContent = `${item.language} (${item.count})`;
+          select.appendChild(opt);
+        });
+      } catch (e) {
+        console.error("Lỗi khi tải languages:", e);
+      }
+    }
+
+    async function loadRepositories() {
+      state.isLoading = true;
+      const tbody = document.getElementById("repo-table-body");
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="9" class="py-12 text-center text-slate-500">
+            <div class="flex flex-col items-center justify-center space-y-2">
+              <i data-lucide="loader" class="w-6 h-6 animate-spin text-emerald-500"></i>
+              <p>Đang tải dữ liệu repository...</p>
+            </div>
+          </td>
+        </tr>
+      `;
+      lucide.createIcons();
+
+      const params = new URLSearchParams({
+        page: state.page,
+        page_size: state.pageSize,
+        sort_by: state.sortBy,
+        sort_dir: state.sortDir,
+      });
+
+      if (state.search) params.append("search", state.search);
+      if (state.language && state.language !== "all") params.append("language", state.language);
+      if (state.since && state.since !== "all") params.append("since", state.since);
+      if (state.minAppearances) params.append("min_appearances", state.minAppearances);
+
+      try {
+        const res = await fetch(`/api/repositories?${params.toString()}`);
+        if (!res.ok) throw new Error("Lỗi khi tải dữ liệu");
+        const data = await res.json();
+
+        state.total = data.total;
+        state.totalPages = data.total_pages;
+        renderTable(data.items);
+        updatePagination();
+      } catch (err) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="9" class="py-12 text-center text-rose-400">
+              <p>Có lỗi khi tải dữ liệu: ${err.message}</p>
+            </td>
+          </tr>
+        `;
+      } finally {
+        state.isLoading = false;
+        lucide.createIcons();
+      }
+    }
+
+    function renderTable(items) {
+      const tbody = document.getElementById("repo-table-body");
+      if (!items || items.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="9" class="py-12 text-center text-slate-500">
+              <div class="flex flex-col items-center justify-center space-y-2">
+                <i data-lucide="inbox" class="w-8 h-8 text-slate-600"></i>
+                <p>Không có repository nào phù hợp với bộ lọc.</p>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      const rowsHtml = items.map((repo, idx) => {
+        const rankNumber = (state.page - 1) * state.pageSize + idx + 1;
+        
+        // Badge số lần xuất hiện
+        let occBadge = '';
+        if (repo.total_appearances >= 3) {
+          occBadge = `
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-sm shadow-amber-500/10">
+              <i data-lucide="flame" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span>${repo.total_appearances} lần</span>
+            </span>
+          `;
+        } else if (repo.total_appearances === 2) {
+          occBadge = `
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+              <i data-lucide="zap" class="w-3.5 h-3.5 text-emerald-400"></i>
+              <span>${repo.total_appearances} lần</span>
+            </span>
+          `;
+        } else {
+          occBadge = `
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs text-slate-300 bg-slate-800 border border-slate-700">
+              <span>${repo.total_appearances} lần</span>
+            </span>
+          `;
+        }
+
+        // Ngôn ngữ & mã màu
+        const langColor = repo.language_color || '#8b949e';
+        const langHtml = repo.language ? `
+          <div class="flex items-center gap-1.5 font-medium text-slate-200">
+            <span class="w-2.5 h-2.5 rounded-full inline-block" style="background-color: ${langColor}"></span>
+            <span>${repo.language}</span>
+          </div>
+        ` : `<span class="text-slate-500 italic">Khác</span>`;
+
+        // Stars & Forks
+        const starsFormatted = repo.current_stars ? repo.current_stars.toLocaleString() : "0";
+        const forksFormatted = repo.current_forks ? repo.current_forks.toLocaleString() : "0";
+
+        // Period stars
+        const periodStars = repo.latest_period_stars || "-";
+
+        // Last seen date format
+        const lastSeen = repo.last_seen_at ? new Date(repo.last_seen_at).toLocaleDateString("vi-VN") : "-";
+
+        return `
+          <tr class="hover:bg-slate-900/50 transition">
+            <td class="py-3.5 px-4 text-center font-mono text-slate-500">${rankNumber}</td>
+            <td class="py-3.5 px-4">
+              <div class="space-y-0.5">
+                <a href="${repo.url}" target="_blank" class="font-bold text-slate-100 hover:text-emerald-400 flex items-center gap-1.5 group transition">
+                  <span class="text-slate-400 group-hover:text-emerald-500 font-normal">${repo.owner} /</span>
+                  <span>${repo.name}</span>
+                  <i data-lucide="external-link" class="w-3 h-3 opacity-0 group-hover:opacity-100 transition"></i>
+                </a>
+                <p class="text-[11px] text-slate-400 line-clamp-1 max-w-md">${repo.description || 'Không có mô tả'}</p>
+              </div>
+            </td>
+            <td class="py-3.5 px-4">${langHtml}</td>
+            <td class="py-3.5 px-4 text-center">
+              ${occBadge}
+              <div class="text-[10px] text-slate-500 mt-1 flex justify-center gap-1.5">
+                <span title="Số lần daily">D:${repo.daily_appearances}</span>
+                <span>•</span>
+                <span title="Số lần weekly">W:${repo.weekly_appearances}</span>
+                <span>•</span>
+                <span title="Số lần monthly">M:${repo.monthly_appearances}</span>
+              </div>
+            </td>
+            <td class="py-3.5 px-4 font-semibold text-slate-200">
+              <div class="flex items-center gap-1">
+                <i data-lucide="star" class="w-3.5 h-3.5 text-yellow-400 fill-yellow-400"></i>
+                <span>${starsFormatted}</span>
+              </div>
+            </td>
+            <td class="py-3.5 px-4 text-slate-300">
+              <div class="flex items-center gap-1">
+                <i data-lucide="git-fork" class="w-3.5 h-3.5 text-slate-400"></i>
+                <span>${forksFormatted}</span>
+              </div>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="text-emerald-400 font-medium bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-800/40">
+                ${periodStars}
+              </span>
+            </td>
+            <td class="py-3.5 px-4 text-slate-400">
+              ${lastSeen}
+            </td>
+            <td class="py-3.5 px-4 text-center">
+              <button onclick="openDetailModal(${repo.id})" class="p-1.5 text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700 rounded-lg transition" title="Xem lịch sử">
+                <i data-lucide="info" class="w-4 h-4"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+
+      tbody.innerHTML = rowsHtml;
+    }
+
+    function updatePagination() {
+      const start = state.total === 0 ? 0 : (state.page - 1) * state.pageSize + 1;
+      const end = Math.min(state.page * state.pageSize, state.total);
+      document.getElementById("pagination-info").textContent = `Hiển thị ${start} - ${end} trên tổng số ${state.total} repository`;
+      document.getElementById("current-page-label").textContent = `Trang ${state.page} / ${state.totalPages}`;
+
+      document.getElementById("btn-prev-page").disabled = state.page <= 1;
+      document.getElementById("btn-next-page").disabled = state.page >= state.totalPages;
+    }
+
+    function changePage(delta) {
+      const newPage = state.page + delta;
+      if (newPage >= 1 && newPage <= state.totalPages) {
+        state.page = newPage;
+        loadRepositories();
+      }
+    }
+
+    function handleSearchInput() {
+      clearTimeout(searchDebounceTimeout);
+      searchDebounceTimeout = setTimeout(() => {
+        state.search = document.getElementById("search-input").value.trim();
+        state.page = 1;
+        loadRepositories();
+      }, 300);
+    }
+
+    function setTimeframeFilter(since) {
+      state.since = since;
+      state.page = 1;
+
+      // Update tab styles
+      ["all", "daily", "weekly", "monthly"].forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        if (t === since) {
+          btn.className = "px-3 py-1.5 rounded-lg bg-emerald-600 text-white shadow-sm transition";
+        } else {
+          btn.className = "px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+        }
+      });
+
+      loadRepositories();
+    }
+
+    function handleFilterChange() {
+      state.language = document.getElementById("lang-select").value;
+      const isRepeatedOnly = document.getElementById("filter-repeated").checked;
+      state.minAppearances = isRepeatedOnly ? 2 : null;
+      state.page = 1;
+      loadRepositories();
+    }
+
+    function toggleSort(col) {
+      if (state.sortBy === col) {
+        state.sortDir = state.sortDir === "asc" ? "desc" : "asc";
+      } else {
+        state.sortBy = col;
+        state.sortDir = "desc";
+      }
+
+      // Update sort indicators
+      ["total_appearances", "current_stars", "last_seen_at"].forEach(c => {
+        const el = document.getElementById(`sort-icon-${c}`);
+        if (el) {
+          if (state.sortBy === c) {
+            el.textContent = state.sortDir === "asc" ? "▲" : "▼";
+          } else {
+            el.textContent = "";
+          }
+        }
+      });
+
+      loadRepositories();
+    }
+
+    async function triggerCrawl(since = "daily", forceIncrement = false) {
+      document.getElementById("crawl-dropdown").classList.add("hidden");
+      const icon = document.getElementById("crawl-icon");
+      icon.classList.add("animate-spin");
+
+      showToast(`Đang cào dữ liệu GitHub Trending [${since}]...`, "success");
+
+      try {
+        const res = await fetch(`/api/crawl/trigger?force_increment=${forceIncrement}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ since: since }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Cào thất bại");
+
+        showToast(`Cào hoàn tất! Đã thu thập ${data.items_count} repositories.`, "success");
+        await loadStats();
+        await loadLanguages();
+        await loadRepositories();
+      } catch (err) {
+        showToast(`Lỗi khi cào dữ liệu: ${err.message}`, "error");
+      } finally {
+        icon.classList.remove("animate-spin");
+      }
+    }
+
+    async function seedDemoData() {
+      const btn = document.getElementById("btn-seed-demo");
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin text-amber-400"></i><span>Đang nạp demo...</span>`;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch("/api/seed-demo", { method: "POST" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Lỗi khi nạp demo");
+
+        showToast("Đã nạp thành công dữ liệu mô phỏng 3 ngày! Các repo đã tăng số lần xuất hiện lên 1, 2, 3 lần.", "success");
+        await loadStats();
+        await loadLanguages();
+        await loadRepositories();
+      } catch (err) {
+        showToast(`Lỗi: ${err.message}`, "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i><span>Nạp Demo (3 Ngày)</span>`;
+        lucide.createIcons();
+      }
+    }
+
+    async function openDetailModal(repoId) {
+      const modal = document.getElementById("repo-detail-modal");
+      const header = document.getElementById("modal-repo-header");
+      const body = document.getElementById("modal-snapshot-body");
+
+      header.innerHTML = `<p class="text-xs text-slate-400">Đang tải...</p>`;
+      body.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-slate-500">Đang tải lịch sử...</td></tr>`;
+      modal.classList.remove("hidden");
+      lucide.createIcons();
+
+      try {
+        const res = await fetch(`/api/repositories/${repoId}`);
+        if (!res.ok) throw new Error("Không thể tải chi tiết");
+        const data = await res.json();
+        const repo = data.repository;
+        const snapshots = data.snapshots;
+
+        header.innerHTML = `
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+              <i data-lucide="github" class="w-5 h-5 text-emerald-400"></i>
+              <a href="${repo.url}" target="_blank" class="hover:underline">${repo.full_name}</a>
+            </h2>
+            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+              🔥 ${repo.total_appearances} lần xuất hiện
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">${repo.description || 'Không có mô tả'}</p>
+          <div class="flex items-center gap-4 text-xs text-slate-300 mt-2">
+            <span>⭐ ${repo.current_stars.toLocaleString()} stars</span>
+            <span>🍴 ${repo.current_forks.toLocaleString()} forks</span>
+            <span>Ngôn ngữ: <b class="text-slate-100">${repo.language || 'N/A'}</b></span>
+          </div>
+        `;
+
+        if (!snapshots || snapshots.length === 0) {
+          body.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-slate-500">Chưa có lịch sử snapshot.</td></tr>`;
+        } else {
+          body.innerHTML = snapshots.map(s => {
+            return `
+              <tr class="hover:bg-slate-900">
+                <td class="p-2 font-mono text-slate-300">${s.record_date || '-'}</td>
+                <td class="p-2 uppercase font-semibold text-[10px] text-emerald-400">${s.since}</td>
+                <td class="p-2 font-bold text-slate-200">#${s.rank_position}</td>
+                <td class="p-2">${s.stars.toLocaleString()}</td>
+                <td class="p-2 text-slate-400">${s.period_stars_text || '-'}</td>
+              </tr>
+            `;
+          }).join("");
+        }
+      } catch (err) {
+        header.innerHTML = `<p class="text-rose-400">${err.message}</p>`;
+      } finally {
+        lucide.createIcons();
+      }
+    }
+
+    function closeDetailModal() {
+      document.getElementById("repo-detail-modal").classList.add("hidden");
+    }
+
+    async function openSessionsModal() {
+      const modal = document.getElementById("sessions-modal");
+      const body = document.getElementById("modal-sessions-body");
+      body.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-slate-500">Đang tải lịch sử...</td></tr>`;
+      modal.classList.remove("hidden");
+      lucide.createIcons();
+
+      try {
+        const res = await fetch("/api/crawl/sessions?limit=25");
+        if (!res.ok) throw new Error("Lỗi khi tải phiên cào");
+        const list = await res.json();
+
+        if (list.length === 0) {
+          body.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-slate-500">Chưa có phiên cào nào.</td></tr>`;
+        } else {
+          body.innerHTML = list.map(s => {
+            const timeStr = s.started_at ? new Date(s.started_at).toLocaleString("vi-VN") : "-";
+            const statusBadge = s.status === "success" 
+              ? `<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-950 text-emerald-300 border border-emerald-800">Thành công</span>`
+              : `<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-950 text-rose-300 border border-rose-800">${s.status}</span>`;
+            return `
+              <tr class="hover:bg-slate-900">
+                <td class="p-2 font-mono text-slate-500">#${s.id}</td>
+                <td class="p-2 uppercase font-semibold text-emerald-400">${s.since_param}</td>
+                <td class="p-2 text-slate-300">${timeStr}</td>
+                <td class="p-2 text-slate-400">${s.is_manual ? 'Thủ công' : 'Tự động'}</td>
+                <td class="p-2 font-bold text-slate-200">${s.items_count}</td>
+                <td class="p-2">${statusBadge}</td>
+              </tr>
+            `;
+          }).join("");
+        }
+      } catch (err) {
+        body.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-rose-400">${err.message}</td></tr>`;
+      } finally {
+        lucide.createIcons();
+      }
+    }
+
+    function closeSessionsModal() {
+      document.getElementById("sessions-modal").classList.add("hidden");
+    }
+  </script>
+</body>
+</html>
