@@ -1,347 +1,502 @@
 <!DOCTYPE html>
-<html lang="vi" class="h-full bg-slate-900 text-slate-100">
+<html lang="vi" class="h-full bg-[#06070a] text-slate-100 antialiased selection:bg-emerald-500/20 selection:text-emerald-300">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GitHub Trending Tracker - Thống Kê & Bảng Xếp Hạng</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>GitHub Trending Tracker — Thống Kê & Bảng Xếp Hạng Xu Hướng</title>
+  
+  <!-- Premium Font: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+          },
           colors: {
-            brand: {
-              50: '#f0fdf4',
-              500: '#22c55e',
-              600: '#16a34a',
-              700: '#15803d',
+            oled: '#06070a',
+            surface: {
+              DEFAULT: '#0c0e14',
+              hover: '#12151e',
+              border: 'rgba(255, 255, 255, 0.07)',
+            },
+            accent: {
+              emerald: '#10b981',
+              cyan: '#06b6d4',
+              amber: '#f59e0b',
             }
+          },
+          transitionTimingFunction: {
+            'haptic': 'cubic-bezier(0.32, 0.72, 0, 1)',
           }
         }
       }
     }
   </script>
+
   <style>
-    /* Custom scrollbar */
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: #0f172a; }
-    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    /* Ambient Canvas Lighting */
+    body {
+      background-color: #06070a;
+      background-image: 
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(16, 185, 129, 0.08), transparent 70%),
+        radial-gradient(ellipse 60% 40% at 85% 60%, rgba(99, 102, 241, 0.04), transparent 60%),
+        radial-gradient(ellipse 60% 40% at 15% 90%, rgba(6, 182, 212, 0.04), transparent 60%);
+      background-attachment: fixed;
+    }
+
+    /* Custom subtle scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.22); }
+
+    /* Motion ease curve */
+    .ease-haptic {
+      transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+    }
   </style>
 </head>
-<body class="h-full flex flex-col font-sans antialiased text-slate-200">
+<body class="min-h-[100dvh] flex flex-col font-sans text-slate-200">
 
-  <!-- TOP NAVBAR -->
-  <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-30">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
-          <i data-lucide="github" class="w-6 h-6"></i>
-        </div>
-        <div>
-          <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
-            GitHub Trending Tracker
-            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/60">v1.0</span>
-          </h1>
-          <p class="text-xs text-slate-400">Theo dõi xu hướng & thống kê số lần xuất hiện của các repository</p>
-        </div>
-      </div>
-
-      <div class="flex items-center space-x-3">
-        <button id="btn-seed-demo" onclick="seedDemoData()" title="Mô phỏng dữ liệu cào qua 3 ngày liên tiếp để kiểm tra số lần xuất hiện 1 -> 2 -> 3" class="px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition flex items-center gap-1.5 shadow-sm">
-          <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
-          <span>Nạp Demo (3 Ngày)</span>
-        </button>
-
-        <button onclick="openSessionsModal()" class="px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition flex items-center gap-1.5 shadow-sm">
-          <i data-lucide="history" class="w-4 h-4 text-cyan-400"></i>
-          <span>Lịch Sử Cào</span>
-        </button>
-
-        <div class="relative inline-block text-left" id="crawl-dropdown-wrapper">
-          <button onclick="toggleCrawlDropdown()" class="px-4 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white rounded-lg shadow-lg shadow-emerald-600/30 transition flex items-center gap-1.5">
-            <i data-lucide="refresh-cw" id="crawl-icon" class="w-4 h-4"></i>
-            <span>Cào Dữ Liệu Ngay</span>
-            <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
-          </button>
+  <!-- FLOATING DETACHED ISLAND NAVBAR (Double-Bezel) -->
+  <header class="w-full pt-4 sm:pt-6 px-3 sm:px-6 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto">
+      <!-- Outer Shell -->
+      <div class="p-1 sm:p-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] backdrop-blur-xl shadow-2xl shadow-black/60">
+        <!-- Inner Core -->
+        <div class="px-4 sm:px-6 h-14 rounded-full bg-[#0a0c12]/90 flex items-center justify-between shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)]">
           
-          <div id="crawl-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-xl bg-slate-900 border border-slate-800 shadow-2xl z-50 p-1">
-            <button onclick="triggerCrawl('daily')" class="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-800 rounded-lg flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-              <span>Cào Daily (Hôm nay)</span>
-            </button>
-            <button onclick="triggerCrawl('weekly')" class="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-800 rounded-lg flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-blue-400"></span>
-              <span>Cào Weekly (Tuần này)</span>
-            </button>
-            <button onclick="triggerCrawl('monthly')" class="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-800 rounded-lg flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-purple-400"></span>
-              <span>Cào Monthly (Tháng này)</span>
-            </button>
-            <div class="border-t border-slate-800 my-1"></div>
-            <button onclick="triggerCrawl('daily', true)" class="w-full text-left px-3 py-2 text-xs text-amber-300 hover:bg-slate-800 rounded-lg flex items-center gap-2" title="Ép buộc tăng +1 lần xuất hiện kể cả khi đã cào cùng ngày">
-              <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-amber-400"></i>
-              <span>Cào ép buộc (+1 count)</span>
-            </button>
+          <!-- Brand Logo -->
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-emerald-500 to-cyan-400 p-[1px] shadow-lg shadow-emerald-500/20">
+              <div class="w-full h-full rounded-full bg-[#090b10] flex items-center justify-center">
+                <i data-lucide="github" class="w-4 h-4 text-emerald-400"></i>
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm sm:text-base font-bold tracking-tight text-white">GitHub Trending Tracker</span>
+                <span class="hidden sm:inline-flex text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  LIVE
+                </span>
+              </div>
+              <p class="hidden md:block text-[11px] text-slate-400 font-light -mt-0.5">Theo dõi thứ hạng & thống kê số lần xuất hiện</p>
+            </div>
           </div>
+
+          <!-- Actions & CTA: Nested Button Architecture -->
+          <div class="flex items-center gap-2 sm:gap-3">
+            <!-- Nạp Demo button -->
+            <button 
+              id="btn-seed-demo" 
+              onclick="seedDemoData()" 
+              title="Mô phỏng dữ liệu cào 3 ngày liên tiếp để kiểm tra số lần xuất hiện 1 -> 2 -> 3" 
+              class="group relative inline-flex items-center gap-2 pl-3.5 pr-2 py-1.5 rounded-full text-xs font-medium text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] transition-all duration-300 active:scale-[0.97] ease-haptic"
+            >
+              <span class="hidden sm:inline">Nạp Demo (3 Ngày)</span>
+              <span class="sm:hidden">Demo</span>
+              <div class="w-6 h-6 rounded-full bg-amber-500/15 border border-amber-500/30 flex items-center justify-center group-hover:scale-105 transition duration-300">
+                <i data-lucide="sparkles" class="w-3 h-3 text-amber-400"></i>
+              </div>
+            </button>
+
+            <!-- Lịch Sử Button -->
+            <button 
+              onclick="openSessionsModal()" 
+              class="hidden sm:inline-flex items-center gap-2 pl-3.5 pr-2 py-1.5 rounded-full text-xs font-medium text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] transition-all duration-300 active:scale-[0.97] ease-haptic"
+            >
+              <span>Lịch Sử Cào</span>
+              <div class="w-6 h-6 rounded-full bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center">
+                <i data-lucide="history" class="w-3 h-3 text-cyan-400"></i>
+              </div>
+            </button>
+
+            <!-- Primary Action: Cào Dữ Liệu Ngay Dropdown -->
+            <div class="relative" id="crawl-dropdown-wrapper">
+              <button 
+                onclick="toggleCrawlDropdown()" 
+                class="group inline-flex items-center gap-2.5 pl-4 pr-1.5 py-1.5 rounded-full text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500 active:scale-[0.97] shadow-lg shadow-emerald-600/30 transition-all duration-300 ease-haptic"
+              >
+                <span class="tracking-tight">Cào Dữ Liệu</span>
+                <div class="w-7 h-7 rounded-full bg-black/20 flex items-center justify-center group-hover:rotate-45 transition duration-500 ease-haptic">
+                  <i data-lucide="refresh-cw" id="crawl-icon" class="w-3.5 h-3.5 text-white"></i>
+                </div>
+              </button>
+
+              <!-- Dropdown Menu with Glass Depth -->
+              <div id="crawl-dropdown" class="hidden absolute right-0 mt-3 w-56 rounded-2xl bg-[#0e111a]/95 border border-white/[0.1] backdrop-blur-2xl shadow-2xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-200">
+                <div class="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Chọn mốc thời gian</div>
+                <button onclick="triggerCrawl('daily')" class="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-white/[0.06] rounded-xl flex items-center justify-between group transition">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]"></span>
+                    <span>Daily (Hôm nay)</span>
+                  </div>
+                  <i data-lucide="arrow-right" class="w-3 h-3 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition text-emerald-400"></i>
+                </button>
+                <button onclick="triggerCrawl('weekly')" class="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-white/[0.06] rounded-xl flex items-center justify-between group transition">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.5)]"></span>
+                    <span>Weekly (Tuần này)</span>
+                  </div>
+                  <i data-lucide="arrow-right" class="w-3 h-3 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition text-blue-400"></i>
+                </button>
+                <button onclick="triggerCrawl('monthly')" class="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-white/[0.06] rounded-xl flex items-center justify-between group transition">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-purple-400 shadow-[0_0_8px_rgba(192,132,252,0.5)]"></span>
+                    <span>Monthly (Tháng này)</span>
+                  </div>
+                  <i data-lucide="arrow-right" class="w-3 h-3 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition text-purple-400"></i>
+                </button>
+                <div class="border-t border-white/[0.08] my-1"></div>
+                <button onclick="triggerCrawl('daily', true)" class="w-full text-left px-3 py-2 text-xs text-amber-300 hover:bg-amber-500/10 rounded-xl flex items-center gap-2 transition" title="Ép buộc tăng +1 lần xuất hiện kể cả khi đã cào cùng ngày">
+                  <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-amber-400"></i>
+                  <span>Cào ép buộc (+1 count)</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
         </div>
       </div>
     </div>
   </header>
 
-  <!-- MAIN CONTAINER -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-6">
+  <!-- MAIN VIEWPORT CONTENT -->
+  <main class="max-w-7xl mx-auto w-full px-3 sm:px-6 py-6 sm:py-8 flex-1 space-y-6">
 
-    <!-- STATS CARDS -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 flex items-center justify-between shadow-sm">
-        <div>
-          <p class="text-xs font-medium text-slate-400">Tổng Repositories</p>
-          <p class="text-2xl font-bold text-white mt-1" id="stat-total-repos">-</p>
-          <p class="text-[11px] text-slate-400 mt-0.5">Đã được lập chỉ mục</p>
+    <!-- EYEBROW & HERO INTRO (Spatial Rhythm) -->
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-[10px] uppercase font-semibold tracking-[0.18em] text-emerald-400 mb-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          GitHub Repository Analytics
         </div>
-        <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center">
-          <i data-lucide="boxes" class="w-6 h-6"></i>
-        </div>
+        <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-white">
+          Thống Kê Xu Hướng Kho Mã Nguồn
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1 max-w-xl font-light">
+          Bảng theo dõi số lần xuất hiện lũy kế qua các ngày, hỗ trợ bóc tách chi tiết thứ hạng, lượng sao và ngôn ngữ thịnh hành.
+        </p>
       </div>
 
-      <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 flex items-center justify-between shadow-sm">
-        <div>
-          <p class="text-xs font-medium text-slate-400">Xuất Hiện Lặp Lại (&ge; 2 lần)</p>
-          <p class="text-2xl font-bold text-amber-400 mt-1" id="stat-repeated-repos">-</p>
-          <p class="text-[11px] text-slate-400 mt-0.5">Duy trì xu hướng bền bỉ</p>
-        </div>
-        <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center">
-          <i data-lucide="flame" class="w-6 h-6"></i>
-        </div>
-      </div>
-
-      <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 flex items-center justify-between shadow-sm">
-        <div>
-          <p class="text-xs font-medium text-slate-400">Số Đợt Cào Đã Chạy</p>
-          <p class="text-2xl font-bold text-emerald-400 mt-1" id="stat-total-sessions">-</p>
-          <p class="text-[11px] text-slate-400 mt-0.5">Bao gồm tự động & thủ công</p>
-        </div>
-        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
-          <i data-lucide="activity" class="w-6 h-6"></i>
-        </div>
-      </div>
-
-      <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 flex items-center justify-between shadow-sm">
-        <div>
-          <p class="text-xs font-medium text-slate-400">Top Ngôn Ngữ</p>
-          <p class="text-sm font-semibold text-purple-300 mt-1 truncate" id="stat-top-language">-</p>
-          <p class="text-[11px] text-slate-400 mt-0.5">Chiếm tỉ trọng trending cao</p>
-        </div>
-        <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center">
-          <i data-lucide="code-2" class="w-6 h-6"></i>
-        </div>
+      <!-- Mobile quick stats button -->
+      <div class="flex sm:hidden items-center gap-2">
+        <button onclick="openSessionsModal()" class="w-full py-2 px-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-xs text-slate-300 flex items-center justify-center gap-2">
+          <i data-lucide="history" class="w-3.5 h-3.5 text-cyan-400"></i>
+          <span>Xem Nhật Ký Cào</span>
+        </button>
       </div>
     </div>
 
-    <!-- CONTROLS & FILTERS -->
-    <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4 shadow-sm space-y-4">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+    <!-- ASYMMETRICAL STATS BENTO (Double-Bezel Architecture) -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      
+      <!-- Card 1 -->
+      <div class="p-1 sm:p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06] shadow-xl">
+        <div class="p-4 sm:p-5 rounded-[calc(1.5rem-0.375rem)] bg-[#0b0d14]/90 h-full flex flex-col justify-between shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Tổng Repos</span>
+            <div class="w-8 h-8 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center">
+              <i data-lucide="boxes" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="mt-3">
+            <div class="text-2xl sm:text-3xl font-bold tracking-tight text-white" id="stat-total-repos">—</div>
+            <p class="text-[11px] text-slate-400 font-light mt-0.5">Kho lưu trữ đã cào</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="p-1 sm:p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06] shadow-xl">
+        <div class="p-4 sm:p-5 rounded-[calc(1.5rem-0.375rem)] bg-[#0b0d14]/90 h-full flex flex-col justify-between shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-medium text-amber-400/90 uppercase tracking-wider">Lặp Lại &ge; 2 Lần</span>
+            <div class="w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center">
+              <i data-lucide="flame" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="mt-3">
+            <div class="text-2xl sm:text-3xl font-bold tracking-tight text-amber-400" id="stat-repeated-repos">—</div>
+            <p class="text-[11px] text-slate-400 font-light mt-0.5">Xuất hiện bền bỉ</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="p-1 sm:p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06] shadow-xl">
+        <div class="p-4 sm:p-5 rounded-[calc(1.5rem-0.375rem)] bg-[#0b0d14]/90 h-full flex flex-col justify-between shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Đợt Cào Đã Chạy</span>
+            <div class="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
+              <i data-lucide="activity" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="mt-3">
+            <div class="text-2xl sm:text-3xl font-bold tracking-tight text-emerald-400" id="stat-total-sessions">—</div>
+            <p class="text-[11px] text-slate-400 font-light mt-0.5">Tự động & thủ công</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="p-1 sm:p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06] shadow-xl">
+        <div class="p-4 sm:p-5 rounded-[calc(1.5rem-0.375rem)] bg-[#0b0d14]/90 h-full flex flex-col justify-between shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Top Ngôn Ngữ</span>
+            <div class="w-8 h-8 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center">
+              <i data-lucide="code-2" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="mt-3">
+            <div class="text-sm sm:text-base font-semibold text-purple-300 truncate" id="stat-top-language">—</div>
+            <p class="text-[11px] text-slate-400 font-light mt-0.5">Tỉ lệ xuất hiện cao nhất</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FILTER & SEARCH CONTROLS (Double-Bezel) -->
+    <div class="p-1 sm:p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06] shadow-xl">
+      <div class="p-3 sm:p-4 rounded-[calc(1.5rem-0.375rem)] bg-[#0a0c13]/90 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
         
-        <!-- Search bar -->
-        <div class="relative flex-1 max-w-md">
-          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+        <!-- Search bar with minimal hairlines -->
+        <div class="relative flex-1 max-w-md w-full">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
           <input
             type="text"
             id="search-input"
             placeholder="Tìm theo tên repo, tác giả hoặc mô tả..."
-            class="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition"
+            class="w-full pl-10 pr-4 py-2 bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.15] focus:border-emerald-500/60 rounded-full text-xs text-slate-200 placeholder-slate-400 focus:outline-none transition-all duration-200"
             oninput="handleSearchInput()"
           >
         </div>
 
-        <!-- Filter Timeframe Tabs -->
-        <div class="flex items-center bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs font-medium">
-          <button onclick="setTimeframeFilter('all')" id="tab-all" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white shadow-sm transition">Tất Cả</button>
-          <button onclick="setTimeframeFilter('daily')" id="tab-daily" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">⚡ Daily</button>
-          <button onclick="setTimeframeFilter('weekly')" id="tab-weekly" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">📅 Weekly</button>
-          <button onclick="setTimeframeFilter('monthly')" id="tab-monthly" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">🌟 Monthly</button>
+        <!-- Filter Timeframe Pill Buttons -->
+        <div class="flex items-center overflow-x-auto p-1 rounded-full bg-white/[0.02] border border-white/[0.06] text-xs font-medium no-scrollbar">
+          <button onclick="setTimeframeFilter('all')" id="tab-all" class="px-3.5 py-1.5 rounded-full bg-emerald-600 text-white shadow-sm transition-all duration-300 ease-haptic whitespace-nowrap">Tất Cả</button>
+          <button onclick="setTimeframeFilter('daily')" id="tab-daily" class="px-3.5 py-1.5 rounded-full text-slate-400 hover:text-white transition-all duration-300 whitespace-nowrap">⚡ Daily</button>
+          <button onclick="setTimeframeFilter('weekly')" id="tab-weekly" class="px-3.5 py-1.5 rounded-full text-slate-400 hover:text-white transition-all duration-300 whitespace-nowrap">📅 Weekly</button>
+          <button onclick="setTimeframeFilter('monthly')" id="tab-monthly" class="px-3.5 py-1.5 rounded-full text-slate-400 hover:text-white transition-all duration-300 whitespace-nowrap">🌟 Monthly</button>
         </div>
 
         <!-- Language & Repeat Filters -->
-        <div class="flex items-center gap-2.5">
-          <select id="lang-select" onchange="handleFilterChange()" class="bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 py-2 px-3 focus:outline-none focus:border-emerald-500">
-            <option value="all">Tất cả ngôn ngữ</option>
+        <div class="flex items-center gap-2 w-full md:w-auto justify-between md:justify-end">
+          <select id="lang-select" onchange="handleFilterChange()" class="bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.15] rounded-full text-xs text-slate-200 py-2 px-3.5 focus:outline-none focus:border-emerald-500/60 transition">
+            <option value="all" class="bg-slate-900 text-slate-200">Tất cả ngôn ngữ</option>
           </select>
 
-          <label class="flex items-center gap-2 cursor-pointer bg-slate-900 hover:bg-slate-850 px-3 py-2 border border-slate-800 rounded-xl text-xs select-none">
-            <input type="checkbox" id="filter-repeated" onchange="handleFilterChange()" class="w-3.5 h-3.5 rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-0">
-            <span class="text-amber-300 font-medium">≥ 2 lần</span>
+          <label class="flex items-center gap-2 cursor-pointer bg-white/[0.03] hover:bg-white/[0.06] px-3.5 py-2 border border-white/[0.08] rounded-full text-xs select-none transition">
+            <input type="checkbox" id="filter-repeated" onchange="handleFilterChange()" class="w-3.5 h-3.5 rounded bg-slate-800 border-white/[0.15] text-emerald-500 focus:ring-0">
+            <span class="text-amber-300 font-semibold flex items-center gap-1">
+              <i data-lucide="flame" class="w-3 h-3 text-amber-400"></i>
+              <span>&ge; 2 lần</span>
+            </span>
           </label>
         </div>
+
       </div>
     </div>
 
-    <!-- MAIN TABLE SECTION -->
-    <div class="bg-slate-950/80 border border-slate-800 rounded-2xl shadow-xl overflow-hidden flex flex-col">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse text-xs">
-          <thead>
-            <tr class="border-b border-slate-800 bg-slate-900/60 text-slate-400 font-semibold uppercase tracking-wider">
-              <th class="py-3.5 px-4 w-12 text-center">#</th>
-              <th class="py-3.5 px-4 cursor-pointer hover:text-white transition" onclick="toggleSort('full_name')">
-                <div class="flex items-center gap-1.5">
-                  <span>Repository</span>
-                  <i data-lucide="chevrons-up-down" class="w-3.5 h-3.5"></i>
-                </div>
-              </th>
-              <th class="py-3.5 px-4 w-32">Ngôn Ngữ</th>
-              <th class="py-3.5 px-4 w-44 cursor-pointer hover:text-amber-300 transition text-center" onclick="toggleSort('total_appearances')">
-                <div class="flex items-center justify-center gap-1 text-amber-400 font-bold">
-                  <i data-lucide="flame" class="w-3.5 h-3.5"></i>
-                  <span>Số Lần Xuất Hiện</span>
-                  <span id="sort-icon-total_appearances">▼</span>
-                </div>
-              </th>
-              <th class="py-3.5 px-4 w-36 cursor-pointer hover:text-white transition" onclick="toggleSort('current_stars')">
-                <div class="flex items-center gap-1">
-                  <i data-lucide="star" class="w-3.5 h-3.5 text-yellow-400"></i>
-                  <span>Tổng Stars</span>
-                  <span id="sort-icon-current_stars"></span>
-                </div>
-              </th>
-              <th class="py-3.5 px-4 w-28">Forks</th>
-              <th class="py-3.5 px-4 w-44">Tăng Giai Đoạn</th>
-              <th class="py-3.5 px-4 w-40 cursor-pointer hover:text-white transition" onclick="toggleSort('last_seen_at')">
-                <div class="flex items-center gap-1">
-                  <span>Lần Cuối Thấy</span>
-                  <span id="sort-icon-last_seen_at"></span>
-                </div>
-              </th>
-              <th class="py-3.5 px-4 w-24 text-center">Chi Tiết</th>
-            </tr>
-          </thead>
-          <tbody id="repo-table-body" class="divide-y divide-slate-800/60">
-            <!-- Table rows will be populated by JS -->
-            <tr>
-              <td colspan="9" class="py-12 text-center text-slate-500">
-                <div class="flex flex-col items-center justify-center space-y-2">
-                  <i data-lucide="loader" class="w-6 h-6 animate-spin text-emerald-500"></i>
-                  <p>Đang tải dữ liệu repository...</p>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <!-- PRIMARY TABULAR SECTION (Double-Bezel Nested Architecture) -->
+    <div class="p-1 sm:p-2 rounded-3xl sm:rounded-[2rem] bg-white/[0.02] border border-white/[0.06] shadow-2xl overflow-hidden">
+      <div class="rounded-[calc(1.5rem-0.375rem)] sm:rounded-[calc(2rem-0.5rem)] bg-[#090b11]/95 overflow-hidden flex flex-col shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
+        
+        <!-- Table container with smooth scroll -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs whitespace-nowrap sm:whitespace-normal">
+            <thead>
+              <tr class="border-b border-white/[0.06] bg-white/[0.015] text-slate-400 font-semibold tracking-wider text-[11px]">
+                <th class="py-4 px-4 w-12 text-center">#</th>
+                <th class="py-4 px-4 cursor-pointer hover:text-white transition group min-w-[220px]" onclick="toggleSort('full_name')">
+                  <div class="flex items-center gap-1.5">
+                    <span>Repository</span>
+                    <i data-lucide="chevrons-up-down" class="w-3 h-3 text-slate-400 group-hover:text-white transition"></i>
+                  </div>
+                </th>
+                <th class="py-4 px-4 w-32">Ngôn Ngữ</th>
+                <th class="py-4 px-4 w-44 cursor-pointer hover:text-amber-300 transition text-center" onclick="toggleSort('total_appearances')">
+                  <div class="flex items-center justify-center gap-1 text-amber-400 font-bold">
+                    <i data-lucide="flame" class="w-3.5 h-3.5 text-amber-400"></i>
+                    <span>Số Lần Xuất Hiện</span>
+                    <span id="sort-icon-total_appearances" class="text-[10px]">▼</span>
+                  </div>
+                </th>
+                <th class="py-4 px-4 w-32 cursor-pointer hover:text-white transition" onclick="toggleSort('current_stars')">
+                  <div class="flex items-center gap-1">
+                    <i data-lucide="star" class="w-3 h-3 text-yellow-400"></i>
+                    <span>Tổng Stars</span>
+                    <span id="sort-icon-current_stars" class="text-[10px]"></span>
+                  </div>
+                </th>
+                <th class="py-4 px-4 w-24">Forks</th>
+                <th class="py-4 px-4 w-40">Tăng Kỳ Này</th>
+                <th class="py-4 px-4 w-32 cursor-pointer hover:text-white transition hidden md:table-cell" onclick="toggleSort('last_seen_at')">
+                  <div class="flex items-center gap-1">
+                    <span>Lần Cuối Thấy</span>
+                    <span id="sort-icon-last_seen_at" class="text-[10px]"></span>
+                  </div>
+                </th>
+                <th class="py-4 px-4 w-20 text-center">Chi Tiết</th>
+              </tr>
+            </thead>
+            <tbody id="repo-table-body" class="divide-y divide-white/[0.04]">
+              <!-- Loading Skeleton / Content injected via JS -->
+              <tr>
+                <td colspan="9" class="py-16 text-center text-slate-400">
+                  <div class="flex flex-col items-center justify-center space-y-3">
+                    <div class="w-8 h-8 rounded-full border-2 border-emerald-500/30 border-t-emerald-400 animate-spin"></div>
+                    <p class="text-xs font-light">Đang tải danh sách repositories...</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-      <!-- PAGINATION FOOTER -->
-      <div class="border-t border-slate-800 bg-slate-900/40 px-4 py-3 flex items-center justify-between">
-        <div class="text-xs text-slate-400" id="pagination-info">
-          Hiển thị 0 trên 0 repository
+        <!-- PAGINATION & FOOTER INFO -->
+        <div class="border-t border-white/[0.06] bg-white/[0.015] px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+          <div class="text-slate-400 font-light" id="pagination-info">
+            Hiển thị 0 trên 0 repository
+          </div>
+          <div class="flex items-center space-x-2">
+            <button 
+              id="btn-prev-page" 
+              onclick="changePage(-1)" 
+              class="px-3.5 py-1.5 rounded-full bg-white/[0.03] hover:bg-white/[0.08] disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/[0.08] transition flex items-center gap-1.5"
+            >
+              <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+              <span>Trước</span>
+            </button>
+            <span id="current-page-label" class="font-medium px-2.5 py-1 rounded-full bg-white/[0.02] border border-white/[0.06] text-slate-300">Trang 1 / 1</span>
+            <button 
+              id="btn-next-page" 
+              onclick="changePage(1)" 
+              class="px-3.5 py-1.5 rounded-full bg-white/[0.03] hover:bg-white/[0.08] disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/[0.08] transition flex items-center gap-1.5"
+            >
+              <span>Sau</span>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
         </div>
-        <div class="flex items-center space-x-2">
-          <button id="btn-prev-page" onclick="changePage(-1)" class="px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-slate-300 rounded-lg border border-slate-700 transition flex items-center gap-1">
-            <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
-            <span>Trước</span>
-          </button>
-          <span id="current-page-label" class="text-xs font-semibold px-2 text-slate-300">Trang 1 / 1</span>
-          <button id="btn-next-page" onclick="changePage(1)" class="px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-slate-300 rounded-lg border border-slate-700 transition flex items-center gap-1">
-            <span>Sau</span>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-          </button>
-        </div>
+
       </div>
     </div>
   </main>
 
-  <!-- MODAL: REPO HISTORY & DETAILS -->
-  <div id="repo-detail-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative space-y-4">
-      <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
+  <!-- REPO HISTORY MODAL (Double-Bezel Glass Card) -->
+  <div id="repo-detail-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-xl flex items-center justify-center p-3 sm:p-6">
+    <div class="p-1 sm:p-1.5 rounded-3xl bg-white/[0.05] border border-white/[0.12] max-w-2xl w-full shadow-2xl relative">
+      <div class="p-5 sm:p-6 rounded-[calc(1.5rem-0.375rem)] bg-[#0c0e15] shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] space-y-5">
+        
+        <button onclick="closeDetailModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.1] border border-white/[0.08] transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
 
-      <div id="modal-repo-header" class="space-y-1 pr-8">
-        <!-- Injected via JS -->
+        <div id="modal-repo-header" class="space-y-1.5 pr-8">
+          <!-- Injected via JS -->
+        </div>
+
+        <div class="border-t border-white/[0.08] pt-4">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-xs sm:text-sm font-semibold text-white flex items-center gap-2">
+              <i data-lucide="calendar-check" class="w-4 h-4 text-emerald-400"></i>
+              <span>Lịch Sử Xuất Hiện Qua Các Ngày Cào</span>
+            </h3>
+            <span class="text-[11px] text-slate-400 font-light">Mỗi ngày được tính là 1 mốc xuất hiện</span>
+          </div>
+          
+          <div class="max-h-72 overflow-y-auto rounded-2xl border border-white/[0.08] bg-black/40 p-2">
+            <table class="w-full text-xs text-left">
+              <thead>
+                <tr class="text-slate-400 border-b border-white/[0.06]">
+                  <th class="p-2.5">Ngày cào</th>
+                  <th class="p-2.5">Mốc (Since)</th>
+                  <th class="p-2.5">Thứ Hạng</th>
+                  <th class="p-2.5">Số Stars</th>
+                  <th class="p-2.5">Tăng Thêm</th>
+                </tr>
+              </thead>
+              <tbody id="modal-snapshot-body" class="divide-y divide-white/[0.04] text-slate-300">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="flex justify-end pt-2">
+          <button onclick="closeDetailModal()" class="px-5 py-2 rounded-full text-xs font-medium bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 border border-white/[0.08] transition">Đóng</button>
+        </div>
+
       </div>
+    </div>
+  </div>
 
-      <div class="border-t border-slate-800 pt-4">
-        <h3 class="text-sm font-semibold text-slate-200 flex items-center gap-2 mb-3">
-          <i data-lucide="calendar-check" class="w-4 h-4 text-emerald-400"></i>
-          <span>Lịch Sử Xuất Hiện Qua Các Ngày Cào</span>
-        </h3>
-        <div class="max-h-72 overflow-y-auto border border-slate-800 rounded-xl bg-slate-950/60 p-2">
+  <!-- SESSIONS HISTORY MODAL -->
+  <div id="sessions-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-xl flex items-center justify-center p-3 sm:p-6">
+    <div class="p-1 sm:p-1.5 rounded-3xl bg-white/[0.05] border border-white/[0.12] max-w-2xl w-full shadow-2xl relative">
+      <div class="p-5 sm:p-6 rounded-[calc(1.5rem-0.375rem)] bg-[#0c0e15] shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] space-y-5">
+        
+        <button onclick="closeSessionsModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.1] border border-white/[0.08] transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+
+        <div class="space-y-1">
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <i data-lucide="activity" class="w-4 h-4 text-cyan-400"></i>
+            <span>Nhật Ký Các Đợt Cào Dữ Liệu</span>
+          </h2>
+          <p class="text-xs text-slate-400 font-light">Lịch sử thu thập tự động và thủ công của hệ thống.</p>
+        </div>
+
+        <div class="max-h-80 overflow-y-auto rounded-2xl border border-white/[0.08] bg-black/40 p-2">
           <table class="w-full text-xs text-left">
             <thead>
-              <tr class="text-slate-400 border-b border-slate-800">
-                <th class="p-2">Ngày cào</th>
-                <th class="p-2">Mốc (Since)</th>
-                <th class="p-2">Hạng (Rank)</th>
-                <th class="p-2">Số Stars</th>
-                <th class="p-2">Tăng thêm</th>
+              <tr class="text-slate-400 border-b border-white/[0.06]">
+                <th class="p-2.5">ID</th>
+                <th class="p-2.5">Mốc</th>
+                <th class="p-2.5">Thời gian</th>
+                <th class="p-2.5">Loại</th>
+                <th class="p-2.5">Số Repos</th>
+                <th class="p-2.5">Trạng thái</th>
               </tr>
             </thead>
-            <tbody id="modal-snapshot-body" class="divide-y divide-slate-800/60 text-slate-300">
+            <tbody id="modal-sessions-body" class="divide-y divide-white/[0.04] text-slate-300">
               <!-- Injected via JS -->
             </tbody>
           </table>
         </div>
-      </div>
 
-      <div class="flex justify-end pt-2">
-        <button onclick="closeDetailModal()" class="px-4 py-2 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition">Đóng</button>
-      </div>
-    </div>
-  </div>
+        <div class="flex justify-end pt-2">
+          <button onclick="closeSessionsModal()" class="px-5 py-2 rounded-full text-xs font-medium bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 border border-white/[0.08] transition">Đóng</button>
+        </div>
 
-  <!-- MODAL: CRAWL SESSIONS -->
-  <div id="sessions-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative space-y-4">
-      <button onclick="closeSessionsModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
-
-      <div class="space-y-1">
-        <h2 class="text-base font-bold text-white flex items-center gap-2">
-          <i data-lucide="activity" class="w-5 h-5 text-cyan-400"></i>
-          <span>Nhật Ký Các Phiên Cào Dữ Liệu</span>
-        </h2>
-        <p class="text-xs text-slate-400">Danh sách các lần hệ thống tự động hoặc người dùng kích hoạt cào GitHub Trending.</p>
-      </div>
-
-      <div class="max-h-80 overflow-y-auto border border-slate-800 rounded-xl bg-slate-950/60 p-2">
-        <table class="w-full text-xs text-left">
-          <thead>
-            <tr class="text-slate-400 border-b border-slate-800">
-              <th class="p-2">ID</th>
-              <th class="p-2">Mốc (Since)</th>
-              <th class="p-2">Thời gian</th>
-              <th class="p-2">Loại</th>
-              <th class="p-2">Số Repos</th>
-              <th class="p-2">Trạng thái</th>
-            </tr>
-          </thead>
-          <tbody id="modal-sessions-body" class="divide-y divide-slate-800/60 text-slate-300">
-            <!-- Injected via JS -->
-          </tbody>
-        </table>
-      </div>
-
-      <div class="flex justify-end pt-2">
-        <button onclick="closeSessionsModal()" class="px-4 py-2 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition">Đóng</button>
       </div>
     </div>
   </div>
 
-  <!-- TOAST NOTIFICATION -->
-  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
-    <div id="toast-content" class="px-4 py-3 rounded-xl shadow-xl flex items-center gap-2.5 text-xs font-medium border bg-slate-900 border-slate-700 text-white">
+  <!-- TOAST NOTIFICATION (Glass Pill) -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-500 ease-haptic pointer-events-none">
+    <div id="toast-content" class="px-4 py-3 rounded-full shadow-2xl flex items-center gap-3 text-xs font-medium border bg-[#0d1017]/95 border-white/[0.12] text-white backdrop-blur-2xl">
       <i id="toast-icon" data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
       <span id="toast-msg">Thông báo</span>
     </div>
   </div>
 
-  <!-- JAVASCRIPT LOGIC -->
+  <!-- APPLICATION LOGIC SCRIPT -->
   <script>
     let state = {
       page: 1,
@@ -365,7 +520,7 @@
       loadLanguages();
       loadRepositories();
 
-      // Click outside dropdown to close
+      // Close dropdown when clicked outside
       document.addEventListener("click", (e) => {
         const wrapper = document.getElementById("crawl-dropdown-wrapper");
         if (wrapper && !wrapper.contains(e.target)) {
@@ -382,19 +537,19 @@
 
       toastMsg.textContent = msg;
       if (type === "success") {
-        toastContent.className = "px-4 py-3 rounded-xl shadow-xl flex items-center gap-2.5 text-xs font-medium border bg-emerald-950/90 border-emerald-700 text-emerald-200";
+        toastContent.className = "px-4 py-3 rounded-full shadow-2xl flex items-center gap-3 text-xs font-medium border bg-emerald-950/90 border-emerald-500/30 text-emerald-200 backdrop-blur-2xl";
         toastIcon.setAttribute("data-lucide", "check-circle");
         toastIcon.className = "w-4 h-4 text-emerald-400";
       } else {
-        toastContent.className = "px-4 py-3 rounded-xl shadow-xl flex items-center gap-2.5 text-xs font-medium border bg-rose-950/90 border-rose-700 text-rose-200";
+        toastContent.className = "px-4 py-3 rounded-full shadow-2xl flex items-center gap-3 text-xs font-medium border bg-rose-950/90 border-rose-500/30 text-rose-200 backdrop-blur-2xl";
         toastIcon.setAttribute("data-lucide", "alert-circle");
         toastIcon.className = "w-4 h-4 text-rose-400";
       }
       lucide.createIcons();
 
-      toast.classList.remove("translate-y-20", "opacity-0", "pointer-events-none");
+      toast.classList.remove("translate-y-24", "opacity-0", "pointer-events-none");
       setTimeout(() => {
-        toast.classList.add("translate-y-20", "opacity-0", "pointer-events-none");
+        toast.classList.add("translate-y-24", "opacity-0", "pointer-events-none");
       }, 3500);
     }
 
@@ -415,7 +570,7 @@
         if (data.top_languages && data.top_languages.length > 0) {
           document.getElementById("stat-top-language").textContent = data.top_languages.map(l => `${l.language} (${l.count})`).slice(0, 2).join(", ");
         } else {
-          document.getElementById("stat-top-language").textContent = "Chưa có dữ liệu";
+          document.getElementById("stat-top-language").textContent = "Chưa có";
         }
       } catch (e) {
         console.error("Lỗi khi tải stats:", e);
@@ -428,11 +583,12 @@
         if (!res.ok) return;
         const list = await res.json();
         const select = document.getElementById("lang-select");
-        select.innerHTML = '<option value="all">Tất cả ngôn ngữ</option>';
+        select.innerHTML = '<option value="all" class="bg-slate-900 text-slate-200">Tất cả ngôn ngữ</option>';
         list.forEach(item => {
           const opt = document.createElement("option");
           opt.value = item.language;
           opt.textContent = `${item.language} (${item.count})`;
+          opt.className = "bg-slate-900 text-slate-200";
           select.appendChild(opt);
         });
       } catch (e) {
@@ -445,10 +601,10 @@
       const tbody = document.getElementById("repo-table-body");
       tbody.innerHTML = `
         <tr>
-          <td colspan="9" class="py-12 text-center text-slate-500">
-            <div class="flex flex-col items-center justify-center space-y-2">
-              <i data-lucide="loader" class="w-6 h-6 animate-spin text-emerald-500"></i>
-              <p>Đang tải dữ liệu repository...</p>
+          <td colspan="9" class="py-16 text-center text-slate-400">
+            <div class="flex flex-col items-center justify-center space-y-3">
+              <div class="w-7 h-7 rounded-full border-2 border-emerald-500/30 border-t-emerald-400 animate-spin"></div>
+              <p class="text-xs font-light">Đang đồng bộ dữ liệu...</p>
             </div>
           </td>
         </tr>
@@ -469,7 +625,7 @@
 
       try {
         const res = await fetch(`/api/repositories?${params.toString()}`);
-        if (!res.ok) throw new Error("Lỗi khi tải dữ liệu");
+        if (!res.ok) throw new Error("Lỗi khi tải danh sách");
         const data = await res.json();
 
         state.total = data.total;
@@ -495,10 +651,10 @@
       if (!items || items.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="9" class="py-12 text-center text-slate-500">
+            <td colspan="9" class="py-16 text-center text-slate-500">
               <div class="flex flex-col items-center justify-center space-y-2">
                 <i data-lucide="inbox" class="w-8 h-8 text-slate-600"></i>
-                <p>Không có repository nào phù hợp với bộ lọc.</p>
+                <p class="text-xs">Không có repository nào phù hợp với điều kiện tìm kiếm.</p>
               </div>
             </td>
           </tr>
@@ -509,96 +665,100 @@
       const rowsHtml = items.map((repo, idx) => {
         const rankNumber = (state.page - 1) * state.pageSize + idx + 1;
         
-        // Badge số lần xuất hiện
+        // Occurrence badge design with luminous ambient pill
         let occBadge = '';
         if (repo.total_appearances >= 3) {
           occBadge = `
-            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-sm shadow-amber-500/10">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-[0_0_12px_rgba(245,158,11,0.15)]">
               <i data-lucide="flame" class="w-3.5 h-3.5 text-amber-400"></i>
               <span>${repo.total_appearances} lần</span>
             </span>
           `;
         } else if (repo.total_appearances === 2) {
           occBadge = `
-            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.12)]">
               <i data-lucide="zap" class="w-3.5 h-3.5 text-emerald-400"></i>
               <span>${repo.total_appearances} lần</span>
             </span>
           `;
         } else {
           occBadge = `
-            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs text-slate-300 bg-slate-800 border border-slate-700">
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium text-slate-300 bg-white/[0.04] border border-white/[0.08]">
               <span>${repo.total_appearances} lần</span>
             </span>
           `;
         }
 
-        // Ngôn ngữ & mã màu
+        // Language indicator with authentic color dot
         const langColor = repo.language_color || '#8b949e';
         const langHtml = repo.language ? `
-          <div class="flex items-center gap-1.5 font-medium text-slate-200">
-            <span class="w-2.5 h-2.5 rounded-full inline-block" style="background-color: ${langColor}"></span>
-            <span>${repo.language}</span>
+          <div class="inline-flex items-center gap-1.5 text-slate-200 text-xs">
+            <span class="w-2 h-2 rounded-full inline-block flex-shrink-0" style="background-color: ${langColor}; box-shadow: 0 0 6px ${langColor}60"></span>
+            <span class="truncate">${repo.language}</span>
           </div>
-        ` : `<span class="text-slate-500 italic">Khác</span>`;
+        ` : `<span class="text-slate-500 text-xs italic">Chưa rõ</span>`;
 
         // Stars & Forks
         const starsFormatted = repo.current_stars ? repo.current_stars.toLocaleString() : "0";
         const forksFormatted = repo.current_forks ? repo.current_forks.toLocaleString() : "0";
 
-        // Period stars
-        const periodStars = repo.latest_period_stars || "-";
+        // Period stars pill
+        const periodStars = repo.latest_period_stars || "—";
 
-        // Last seen date format
-        const lastSeen = repo.last_seen_at ? new Date(repo.last_seen_at).toLocaleDateString("vi-VN") : "-";
+        // Last seen
+        const lastSeen = repo.last_seen_at ? new Date(repo.last_seen_at).toLocaleDateString("vi-VN") : "—";
 
         return `
-          <tr class="hover:bg-slate-900/50 transition">
-            <td class="py-3.5 px-4 text-center font-mono text-slate-500">${rankNumber}</td>
+          <tr class="hover:bg-white/[0.025] transition-colors duration-200 group">
+            <td class="py-3.5 px-4 text-center font-mono text-slate-500 text-xs">${rankNumber}</td>
             <td class="py-3.5 px-4">
               <div class="space-y-0.5">
-                <a href="${repo.url}" target="_blank" class="font-bold text-slate-100 hover:text-emerald-400 flex items-center gap-1.5 group transition">
-                  <span class="text-slate-400 group-hover:text-emerald-500 font-normal">${repo.owner} /</span>
+                <a href="${repo.url}" target="_blank" class="font-semibold text-slate-100 hover:text-emerald-400 flex items-center gap-1.5 transition">
+                  <span class="text-slate-400 font-normal">${repo.owner} /</span>
                   <span>${repo.name}</span>
-                  <i data-lucide="external-link" class="w-3 h-3 opacity-0 group-hover:opacity-100 transition"></i>
+                  <i data-lucide="external-link" class="w-3 h-3 opacity-0 group-hover:opacity-100 transition text-emerald-400"></i>
                 </a>
-                <p class="text-[11px] text-slate-400 line-clamp-1 max-w-md">${repo.description || 'Không có mô tả'}</p>
+                <p class="text-[11px] text-slate-400 line-clamp-1 max-w-sm sm:max-w-md font-light">${repo.description || 'Không có mô tả'}</p>
               </div>
             </td>
             <td class="py-3.5 px-4">${langHtml}</td>
             <td class="py-3.5 px-4 text-center">
               ${occBadge}
-              <div class="text-[10px] text-slate-500 mt-1 flex justify-center gap-1.5">
+              <div class="text-[10px] text-slate-500 font-mono mt-1 flex justify-center gap-1.5">
                 <span title="Số lần daily">D:${repo.daily_appearances}</span>
-                <span>•</span>
+                <span class="opacity-40">•</span>
                 <span title="Số lần weekly">W:${repo.weekly_appearances}</span>
-                <span>•</span>
+                <span class="opacity-40">•</span>
                 <span title="Số lần monthly">M:${repo.monthly_appearances}</span>
               </div>
             </td>
-            <td class="py-3.5 px-4 font-semibold text-slate-200">
+            <td class="py-3.5 px-4 font-medium text-slate-200">
               <div class="flex items-center gap-1">
                 <i data-lucide="star" class="w-3.5 h-3.5 text-yellow-400 fill-yellow-400"></i>
                 <span>${starsFormatted}</span>
               </div>
             </td>
-            <td class="py-3.5 px-4 text-slate-300">
+            <td class="py-3.5 px-4 text-slate-400">
               <div class="flex items-center gap-1">
                 <i data-lucide="git-fork" class="w-3.5 h-3.5 text-slate-400"></i>
                 <span>${forksFormatted}</span>
               </div>
             </td>
             <td class="py-3.5 px-4">
-              <span class="text-emerald-400 font-medium bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-800/40">
+              <span class="text-emerald-400 text-xs font-medium bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
                 ${periodStars}
               </span>
             </td>
-            <td class="py-3.5 px-4 text-slate-400">
+            <td class="py-3.5 px-4 text-slate-400 text-xs hidden md:table-cell">
               ${lastSeen}
             </td>
             <td class="py-3.5 px-4 text-center">
-              <button onclick="openDetailModal(${repo.id})" class="p-1.5 text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700 rounded-lg transition" title="Xem lịch sử">
-                <i data-lucide="info" class="w-4 h-4"></i>
+              <button 
+                onclick="openDetailModal(${repo.id})" 
+                class="p-1.5 text-slate-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.1] rounded-full border border-white/[0.08] transition" 
+                title="Xem chi tiết lịch sử"
+              >
+                <i data-lucide="info" class="w-3.5 h-3.5"></i>
               </button>
             </td>
           </tr>
@@ -611,7 +771,7 @@
     function updatePagination() {
       const start = state.total === 0 ? 0 : (state.page - 1) * state.pageSize + 1;
       const end = Math.min(state.page * state.pageSize, state.total);
-      document.getElementById("pagination-info").textContent = `Hiển thị ${start} - ${end} trên tổng số ${state.total} repository`;
+      document.getElementById("pagination-info").textContent = `Hiển thị ${start} - ${end} trên ${state.total} repository`;
       document.getElementById("current-page-label").textContent = `Trang ${state.page} / ${state.totalPages}`;
 
       document.getElementById("btn-prev-page").disabled = state.page <= 1;
@@ -632,20 +792,19 @@
         state.search = document.getElementById("search-input").value.trim();
         state.page = 1;
         loadRepositories();
-      }, 300);
+      }, 250);
     }
 
     function setTimeframeFilter(since) {
       state.since = since;
       state.page = 1;
 
-      // Update tab styles
       ["all", "daily", "weekly", "monthly"].forEach(t => {
         const btn = document.getElementById(`tab-${t}`);
         if (t === since) {
-          btn.className = "px-3 py-1.5 rounded-lg bg-emerald-600 text-white shadow-sm transition";
+          btn.className = "px-3.5 py-1.5 rounded-full bg-emerald-600 text-white shadow-sm transition-all duration-300 ease-haptic whitespace-nowrap";
         } else {
-          btn.className = "px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+          btn.className = "px-3.5 py-1.5 rounded-full text-slate-400 hover:text-white transition-all duration-300 whitespace-nowrap";
         }
       });
 
@@ -668,7 +827,6 @@
         state.sortDir = "desc";
       }
 
-      // Update sort indicators
       ["total_appearances", "current_stars", "last_seen_at"].forEach(c => {
         const el = document.getElementById(`sort-icon-${c}`);
         if (el) {
@@ -705,7 +863,7 @@
         await loadLanguages();
         await loadRepositories();
       } catch (err) {
-        showToast(`Lỗi khi cào dữ liệu: ${err.message}`, "error");
+        showToast(`Lỗi: ${err.message}`, "error");
       } finally {
         icon.classList.remove("animate-spin");
       }
@@ -714,15 +872,14 @@
     async function seedDemoData() {
       const btn = document.getElementById("btn-seed-demo");
       btn.disabled = true;
-      btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin text-amber-400"></i><span>Đang nạp demo...</span>`;
-      lucide.createIcons();
+      btn.innerHTML = `<span class="inline-block w-3.5 h-3.5 rounded-full border-2 border-amber-400 border-t-transparent animate-spin"></span><span class="text-xs">Đang nạp...</span>`;
 
       try {
         const res = await fetch("/api/seed-demo", { method: "POST" });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || "Lỗi khi nạp demo");
+        if (!res.ok) throw new Error(data.detail || "Lỗi nạp demo");
 
-        showToast("Đã nạp thành công dữ liệu mô phỏng 3 ngày! Các repo đã tăng số lần xuất hiện lên 1, 2, 3 lần.", "success");
+        showToast("Đã nạp thành công mô phỏng 3 ngày! Các repo đã tăng số lần xuất hiện lên 1, 2, 3 lần.", "success");
         await loadStats();
         await loadLanguages();
         await loadRepositories();
@@ -730,7 +887,13 @@
         showToast(`Lỗi: ${err.message}`, "error");
       } finally {
         btn.disabled = false;
-        btn.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i><span>Nạp Demo (3 Ngày)</span>`;
+        btn.innerHTML = `
+          <span class="hidden sm:inline">Nạp Demo (3 Ngày)</span>
+          <span class="sm:hidden">Demo</span>
+          <div class="w-6 h-6 rounded-full bg-amber-500/15 border border-amber-500/30 flex items-center justify-center">
+            <i data-lucide="sparkles" class="w-3 h-3 text-amber-400"></i>
+          </div>
+        `;
         lucide.createIcons();
       }
     }
@@ -741,46 +904,46 @@
       const body = document.getElementById("modal-snapshot-body");
 
       header.innerHTML = `<p class="text-xs text-slate-400">Đang tải...</p>`;
-      body.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-slate-500">Đang tải lịch sử...</td></tr>`;
+      body.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-slate-500">Đang tải dữ liệu...</td></tr>`;
       modal.classList.remove("hidden");
       lucide.createIcons();
 
       try {
         const res = await fetch(`/api/repositories/${repoId}`);
-        if (!res.ok) throw new Error("Không thể tải chi tiết");
+        if (!res.ok) throw new Error("Không tìm thấy repo");
         const data = await res.json();
         const repo = data.repository;
         const snapshots = data.snapshots;
 
         header.innerHTML = `
-          <div class="flex items-center justify-between">
-            <h2 class="text-lg font-bold text-white flex items-center gap-2">
-              <i data-lucide="github" class="w-5 h-5 text-emerald-400"></i>
-              <a href="${repo.url}" target="_blank" class="hover:underline">${repo.full_name}</a>
+          <div class="flex items-center justify-between gap-3">
+            <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2 truncate">
+              <i data-lucide="github" class="w-4 h-4 text-emerald-400 flex-shrink-0"></i>
+              <a href="${repo.url}" target="_blank" class="hover:text-emerald-400 transition truncate">${repo.full_name}</a>
             </h2>
-            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 flex-shrink-0">
               🔥 ${repo.total_appearances} lần xuất hiện
             </span>
           </div>
-          <p class="text-xs text-slate-400 mt-1">${repo.description || 'Không có mô tả'}</p>
-          <div class="flex items-center gap-4 text-xs text-slate-300 mt-2">
-            <span>⭐ ${repo.current_stars.toLocaleString()} stars</span>
-            <span>🍴 ${repo.current_forks.toLocaleString()} forks</span>
-            <span>Ngôn ngữ: <b class="text-slate-100">${repo.language || 'N/A'}</b></span>
+          <p class="text-xs text-slate-400 mt-1 font-light leading-relaxed">${repo.description || 'Không có mô tả'}</p>
+          <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-slate-300 mt-3 pt-2 border-t border-white/[0.06]">
+            <span>⭐ <b class="text-white">${repo.current_stars.toLocaleString()}</b> stars</span>
+            <span>🍴 <b class="text-white">${repo.current_forks.toLocaleString()}</b> forks</span>
+            <span>Ngôn ngữ: <b class="text-slate-100">${repo.language || 'Chưa rõ'}</b></span>
           </div>
         `;
 
         if (!snapshots || snapshots.length === 0) {
-          body.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-slate-500">Chưa có lịch sử snapshot.</td></tr>`;
+          body.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-slate-500">Chưa có lịch sử snapshot nào.</td></tr>`;
         } else {
           body.innerHTML = snapshots.map(s => {
             return `
-              <tr class="hover:bg-slate-900">
-                <td class="p-2 font-mono text-slate-300">${s.record_date || '-'}</td>
-                <td class="p-2 uppercase font-semibold text-[10px] text-emerald-400">${s.since}</td>
-                <td class="p-2 font-bold text-slate-200">#${s.rank_position}</td>
-                <td class="p-2">${s.stars.toLocaleString()}</td>
-                <td class="p-2 text-slate-400">${s.period_stars_text || '-'}</td>
+              <tr class="hover:bg-white/[0.02]">
+                <td class="p-2.5 font-mono text-slate-300">${s.record_date || '—'}</td>
+                <td class="p-2.5 uppercase font-semibold text-[10px] text-emerald-400">${s.since}</td>
+                <td class="p-2.5 font-bold text-slate-200">#${s.rank_position}</td>
+                <td class="p-2.5">${s.stars.toLocaleString()}</td>
+                <td class="p-2.5 text-slate-400">${s.period_stars_text || '—'}</td>
               </tr>
             `;
           }).join("");
@@ -799,31 +962,31 @@
     async function openSessionsModal() {
       const modal = document.getElementById("sessions-modal");
       const body = document.getElementById("modal-sessions-body");
-      body.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-slate-500">Đang tải lịch sử...</td></tr>`;
+      body.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-slate-500">Đang tải nhật ký...</td></tr>`;
       modal.classList.remove("hidden");
       lucide.createIcons();
 
       try {
         const res = await fetch("/api/crawl/sessions?limit=25");
-        if (!res.ok) throw new Error("Lỗi khi tải phiên cào");
+        if (!res.ok) throw new Error("Lỗi khi tải phiên");
         const list = await res.json();
 
         if (list.length === 0) {
-          body.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-slate-500">Chưa có phiên cào nào.</td></tr>`;
+          body.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-slate-500">Chưa có phiên cào nào được ghi nhận.</td></tr>`;
         } else {
           body.innerHTML = list.map(s => {
-            const timeStr = s.started_at ? new Date(s.started_at).toLocaleString("vi-VN") : "-";
+            const timeStr = s.started_at ? new Date(s.started_at).toLocaleString("vi-VN") : "—";
             const statusBadge = s.status === "success" 
-              ? `<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-950 text-emerald-300 border border-emerald-800">Thành công</span>`
-              : `<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-950 text-rose-300 border border-rose-800">${s.status}</span>`;
+              ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">Thành công</span>`
+              : `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/15 text-rose-300 border border-rose-500/30">${s.status}</span>`;
             return `
-              <tr class="hover:bg-slate-900">
-                <td class="p-2 font-mono text-slate-500">#${s.id}</td>
-                <td class="p-2 uppercase font-semibold text-emerald-400">${s.since_param}</td>
-                <td class="p-2 text-slate-300">${timeStr}</td>
-                <td class="p-2 text-slate-400">${s.is_manual ? 'Thủ công' : 'Tự động'}</td>
-                <td class="p-2 font-bold text-slate-200">${s.items_count}</td>
-                <td class="p-2">${statusBadge}</td>
+              <tr class="hover:bg-white/[0.02]">
+                <td class="p-2.5 font-mono text-slate-500">#${s.id}</td>
+                <td class="p-2.5 uppercase font-semibold text-emerald-400">${s.since_param}</td>
+                <td class="p-2.5 text-slate-300 text-[11px]">${timeStr}</td>
+                <td class="p-2.5 text-slate-400">${s.is_manual ? 'Thủ công' : 'Tự động'}</td>
+                <td class="p-2.5 font-bold text-slate-200">${s.items_count}</td>
+                <td class="p-2.5">${statusBadge}</td>
               </tr>
             `;
           }).join("");
