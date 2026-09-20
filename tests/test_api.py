@@ -145,3 +145,26 @@ def test_clear_demo_and_reset_database():
     assert repo_resp3.status_code == 200
     assert repo_resp3.json()["total"] == 0
 
+
+def test_scheduler_toggle_and_status_api():
+    # 1. Get status
+    status_resp = client.get("/api/scheduler/status")
+    assert status_resp.status_code == 200
+    assert "is_active" in status_resp.json()
+
+    # 2. Toggle to False
+    toggle_resp = client.post("/api/scheduler/toggle?enable=false")
+    assert toggle_resp.status_code == 200
+    assert toggle_resp.json()["is_active"] is False
+
+    # Check status again
+    status_resp2 = client.get("/api/scheduler/status")
+    assert status_resp2.status_code == 200
+    assert status_resp2.json()["is_active"] is False
+
+    # 3. Toggle back to True
+    toggle_resp2 = client.post("/api/scheduler/toggle?enable=true")
+    assert toggle_resp2.status_code == 200
+    assert toggle_resp2.json()["is_active"] is True
+
+

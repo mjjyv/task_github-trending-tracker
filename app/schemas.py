@@ -43,6 +43,7 @@ class RepositoryOut(BaseModel):
     latest_period_stars: Optional[str] = None
     latest_rank: Optional[int] = None
     first_seen_at: Optional[datetime] = None
+    last_seen_at: Optional[datetime] = None
     # Window-specific dynamic metrics (khi lọc theo khoảng thời gian)
     window_appearances: Optional[int] = None
     window_stars_gained: Optional[int] = None

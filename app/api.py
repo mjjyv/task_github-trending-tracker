@@ -9,7 +9,7 @@ from app.database import get_db, Base, engine
 from app.models import Repository, CrawlSession, RepoSnapshot
 from app.crawler import GitHubTrendingCrawler
 from app.scoring import recalculate_all_scores
-from app.scheduler import get_scheduled_jobs_info
+from app.scheduler import get_scheduled_jobs_info, toggle_scheduler, is_scheduler_active
 from app.analytics import (
     parse_time_window,
     calculate_window_metrics,
@@ -383,6 +383,29 @@ def recalculate_scores(db: Session = Depends(get_db)):
 def get_scheduler_jobs():
     """Lấy danh sách các lịch trình cào tự động và thời gian chạy tiếp theo."""
     return get_scheduled_jobs_info()
+
+
+@router.post("/scheduler/toggle")
+def toggle_scheduler_endpoint(enable: Optional[bool] = None):
+    """
+    Bật hoặc tắt bộ lập lịch nội bộ (APScheduler).
+    Rất hữu ích khi người dùng đã cài đặt cronjob của hệ điều hành Linux.
+    """
+    active = toggle_scheduler(enable)
+    status_str = "BẬT" if active else "TẮT"
+    return {
+        "is_active": active,
+        "message": f"Bộ lập lịch tự động nội bộ đã được {status_str} thành công!",
+    }
+
+
+@router.get("/scheduler/status")
+def get_scheduler_status():
+    """Kiểm tra trạng thái kích hoạt của bộ lập lịch tự động APScheduler."""
+    return {
+        "is_active": is_scheduler_active(),
+    }
+
 
 
 @router.get("/repositories/{repo_id}/compare", response_model=PeriodComparisonOut)

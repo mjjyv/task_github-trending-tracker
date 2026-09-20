@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime, timezone
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
@@ -89,6 +89,30 @@ def start_scheduler() -> None:
         logger.info("APScheduler đã được khởi động với 3 lịch cào tự động thành công.")
 
 
+def is_scheduler_active() -> bool:
+    """Kiểm tra xem scheduler có đang chạy (running và không bị tạm dừng) hay không."""
+    return bool(scheduler.running and scheduler.state == 1)
+
+
+def toggle_scheduler(enable: Optional[bool] = None) -> bool:
+    """Bật hoặc tắt scheduler nội bộ."""
+    current_active = is_scheduler_active()
+    target = (not current_active) if enable is None else bool(enable)
+
+    if target:
+        if not scheduler.running:
+            start_scheduler()
+        else:
+            scheduler.resume()
+        logger.info("APScheduler đã được BẬT hoạt động.")
+    else:
+        if scheduler.running:
+            scheduler.pause()
+        logger.info("APScheduler đã được TẮT (Tạm dừng).")
+
+    return is_scheduler_active()
+
+
 def shutdown_scheduler() -> None:
     if scheduler.running:
         scheduler.shutdown(wait=False)
@@ -98,6 +122,7 @@ def shutdown_scheduler() -> None:
 def get_scheduled_jobs_info() -> List[Dict[str, Any]]:
     """Trả về thông tin chi tiết các jobs đang được lập lịch và lần chạy kế tiếp."""
     jobs_info: List[Dict[str, Any]] = []
+    active = is_scheduler_active()
     
     # Metadata mô tả cấu hình mong muốn
     schedules_meta = {
@@ -124,7 +149,7 @@ def get_scheduled_jobs_info() -> List[Dict[str, Any]]:
             "frequency_label": "Tùy biến",
             "cron_desc": str(job.trigger),
         })
-        next_run = job.next_run_time
+        next_run = job.next_run_time if active else None
         jobs_info.append({
             "id": job.id,
             "name": job.name,
@@ -132,7 +157,7 @@ def get_scheduled_jobs_info() -> List[Dict[str, Any]]:
             "frequency_label": meta["frequency_label"],
             "cron_desc": meta["cron_desc"],
             "next_run_time": next_run.isoformat() if next_run else None,
-            "is_running": scheduler.running,
+            "is_running": active,
         })
 
     return jobs_info

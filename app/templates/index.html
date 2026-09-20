@@ -90,106 +90,140 @@
                   AUTO
                 </span>
               </div>
-              <p class="hidden md:block text-[11px] text-slate-400 font-light -mt-0.5">Lịch cào tự động & Tính điểm Bền bỉ (Persistence) • Tốc độ (Velocity)</p>
+              <!-- <p class="hidden md:block text-[11px] text-slate-400 font-light -mt-0.5">Lịch cào tự động & Tính điểm Bền bỉ (Persistence) • Tốc độ (Velocity)</p> -->
             </div>
           </div>
 
-          <!-- Actions & CTA: Nested Button Architecture -->
+          <!-- Actions & CTA: Two Compact Dropdowns (Tools & Crawl) -->
           <div class="flex items-center gap-2 sm:gap-2.5">
-            <!-- Nạp Demo button -->
-            <button 
-              id="btn-seed-demo" 
-              onclick="seedDemoData()" 
-              title="Mô phỏng cào 3 ngày liên tiếp để kiểm tra số lần xuất hiện và tính điểm" 
-              class="group relative inline-flex items-center gap-2 pl-3.5 pr-2 py-1.5 rounded-full text-xs font-medium text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] transition-all duration-300 active:scale-[0.97] ease-haptic"
-            >
-              <span class="hidden sm:inline">Nạp Demo (3 Ngày)</span>
-              <span class="sm:hidden">Demo</span>
-              <div class="w-6 h-6 rounded-full bg-amber-500/15 border border-amber-500/30 flex items-center justify-center group-hover:scale-105 transition duration-300">
-                <i data-lucide="sparkles" class="w-3 h-3 text-amber-400"></i>
-              </div>
-            </button>
+            
+            <!-- Dropdown 1: Công Cụ & Mở Rộng -->
+            <div class="relative" id="tools-dropdown-wrapper">
+              <button 
+                onclick="toggleToolsDropdown()" 
+                id="btn-tools-dropdown"
+                class="group inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-medium text-slate-200 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-emerald-500/30 transition-all duration-300 active:scale-[0.97]"
+                title="Các công cụ quản lý dữ liệu demo, hướng dẫn chỉ số và cài đặt"
+              >
+                <div class="w-5 h-5 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center group-hover:scale-105 transition">
+                  <i data-lucide="wrench" class="w-3 h-3 text-emerald-400"></i>
+                </div>
+                <span class="tracking-tight hidden sm:inline">Công Cụ</span>
+                <i data-lucide="chevron-down" class="w-3 h-3 text-slate-400 group-hover:text-white transition"></i>
+              </button>
 
-            <!-- Nạp Demo 12 Tháng Button (Mô phỏng đa kỳ) -->
-            <button 
-              id="btn-seed-timeline" 
-              onclick="seedTimelineDemo()" 
-              title="Nạp dữ liệu 12-18 tháng đa kỳ (Repo bùng nổ, Di sản hạ nhiệt, Trụ cột, Hồi sinh)" 
-              class="group relative inline-flex items-center gap-2 pl-3.5 pr-2 py-1.5 rounded-full text-xs font-medium text-cyan-300 hover:text-white bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/25 transition-all duration-300 active:scale-[0.97] ease-haptic"
-            >
-              <span class="hidden sm:inline">Demo 12 Tháng</span>
-              <span class="sm:hidden">12T</span>
-              <div class="w-6 h-6 rounded-full bg-cyan-500/20 border border-cyan-500/35 flex items-center justify-center group-hover:scale-105 transition duration-300">
-                <i data-lucide="line-chart" class="w-3 h-3 text-cyan-400"></i>
-              </div>
-            </button>
+              <!-- Tools Dropdown Menu -->
+              <div id="tools-dropdown" class="hidden absolute right-0 mt-3 w-64 rounded-2xl bg-[#0e111a]/95 border border-white/[0.1] backdrop-blur-2xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-200 space-y-1">
+                <!-- Group 1: Dữ liệu mô phỏng Demo -->
+                <div class="px-2.5 pt-1.5 pb-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                  <i data-lucide="sparkles" class="w-3 h-3 text-amber-400"></i>
+                  <span>Dữ Liệu Mô Phỏng (Demo)</span>
+                </div>
+                
+                <button onclick="seedDemoData(); closeToolsDropdown();" id="btn-seed-demo" class="w-full text-left px-2.5 py-2 text-xs text-slate-200 hover:bg-white/[0.06] rounded-xl flex items-center justify-between group transition">
+                  <div class="flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                    <div>
+                      <div class="font-medium text-white group-hover:text-amber-300 transition">Nạp Demo (3 Ngày)</div>
+                      <div class="text-[10px] text-slate-400">Mô phỏng đếm số lần xuất hiện</div>
+                    </div>
+                  </div>
+                  <i data-lucide="arrow-right" class="w-3 h-3 text-slate-500 group-hover:text-amber-400 group-hover:translate-x-0.5 transition"></i>
+                </button>
 
-            <!-- Ý Nghĩa Chỉ Số Button -->
-            <button 
-              onclick="openGuideModal()" 
-              title="Xem giải nghĩa Persistence, Velocity, bài toán repo cũ và 6 giai đoạn vòng đời" 
-              class="hidden lg:inline-flex items-center gap-2 pl-3.5 pr-2 py-1.5 rounded-full text-xs font-medium text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] transition-all duration-300 active:scale-[0.97] ease-haptic"
-            >
-              <span>Ý Nghĩa Chỉ Số</span>
-              <div class="w-6 h-6 rounded-full bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center">
-                <i data-lucide="book-open" class="w-3 h-3 text-indigo-400"></i>
-              </div>
-            </button>
+                <button onclick="seedTimelineDemo(); closeToolsDropdown();" id="btn-seed-timeline" class="w-full text-left px-2.5 py-2 text-xs text-slate-200 hover:bg-white/[0.06] rounded-xl flex items-center justify-between group transition">
+                  <div class="flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                    <div>
+                      <div class="font-medium text-white group-hover:text-emerald-300 transition">Demo Đa Kỳ (12 Tháng)</div>
+                      <div class="text-[10px] text-slate-400">Mô phỏng hạ bệ repo cũ & bùng nổ</div>
+                    </div>
+                  </div>
+                  <i data-lucide="arrow-right" class="w-3 h-3 text-slate-500 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition"></i>
+                </button>
 
-            <!-- Lịch Cào Tự Động Button -->
-            <button 
-              onclick="openSchedulerModal()" 
-              class="inline-flex items-center gap-2 pl-3.5 pr-2 py-1.5 rounded-full text-xs font-medium text-emerald-300 hover:text-white bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 transition-all duration-300 active:scale-[0.97] ease-haptic"
-              title="Xem cấu hình cào tự động: Daily 3x/ngày, Weekly 1x/ngày, Monthly 2x/tuần"
-            >
-              <span class="hidden sm:inline">Lịch Tự Động</span>
-              <span class="sm:hidden">Lịch</span>
-              <div class="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center">
-                <i data-lucide="clock" class="w-3 h-3 text-emerald-400"></i>
-              </div>
-            </button>
+                <div class="border-t border-white/[0.06] my-1"></div>
 
-            <!-- Lịch Sử Button -->
-            <button 
-              onclick="openSessionsModal()" 
-              class="hidden md:inline-flex items-center gap-2 pl-3.5 pr-2 py-1.5 rounded-full text-xs font-medium text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] transition-all duration-300 active:scale-[0.97] ease-haptic"
-            >
-              <span>Lịch Sử</span>
-              <div class="w-6 h-6 rounded-full bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center">
-                <i data-lucide="history" class="w-3 h-3 text-cyan-400"></i>
-              </div>
-            </button>
+                <!-- Group 2: Hướng dẫn & Lịch sử -->
+                <div class="px-2.5 pt-1 pb-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                  <i data-lucide="book-open" class="w-3 h-3 text-indigo-400"></i>
+                  <span>Phân Tích & Hướng Dẫn</span>
+                </div>
 
-            <!-- Primary Action: Cào Dữ Liệu Ngay Dropdown -->
+                <button onclick="openGuideModal(); closeToolsDropdown();" class="w-full text-left px-2.5 py-2 text-xs text-slate-200 hover:bg-white/[0.06] rounded-xl flex items-center justify-between group transition">
+                  <div class="flex items-center gap-2">
+                    <i data-lucide="help-circle" class="w-3.5 h-3.5 text-indigo-400"></i>
+                    <span>Ý Nghĩa Chỉ Số & Vòng Đời</span>
+                  </div>
+                  <i data-lucide="arrow-right" class="w-3 h-3 text-slate-500 group-hover:text-indigo-400 group-hover:translate-x-0.5 transition"></i>
+                </button>
+
+                <button onclick="openSessionsModal(); closeToolsDropdown();" class="w-full text-left px-2.5 py-2 text-xs text-slate-200 hover:bg-white/[0.06] rounded-xl flex items-center justify-between group transition">
+                  <div class="flex items-center gap-2">
+                    <i data-lucide="history" class="w-3.5 h-3.5 text-cyan-400"></i>
+                    <span>Lịch Sử Các Phiên Cào</span>
+                  </div>
+                  <i data-lucide="arrow-right" class="w-3 h-3 text-slate-500 group-hover:text-cyan-400 group-hover:translate-x-0.5 transition"></i>
+                </button>
+
+                <button onclick="openSchedulerModal(); closeToolsDropdown();" class="w-full text-left px-2.5 py-2 text-xs text-slate-200 hover:bg-white/[0.06] rounded-xl flex items-center justify-between group transition">
+                  <div class="flex items-center gap-2">
+                    <i data-lucide="clock" class="w-3.5 h-3.5 text-emerald-400"></i>
+                    <span>Lịch Trình Tự Động (Bật/Tắt)</span>
+                  </div>
+                  <i data-lucide="arrow-right" class="w-3 h-3 text-slate-500 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition"></i>
+                </button>
+
+                <div class="border-t border-white/[0.06] my-1"></div>
+
+                <!-- Group 3: Quản lý cơ sở dữ liệu -->
+                <div class="px-2.5 pt-1 pb-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                  <i data-lucide="database" class="w-3 h-3 text-rose-400"></i>
+                  <span>Quản Lý Database</span>
+                </div>
+
+                <button onclick="clearDemoData(); closeToolsDropdown();" class="w-full text-left px-2.5 py-1.5 text-xs text-amber-400 hover:bg-amber-500/10 rounded-xl flex items-center gap-2 transition" title="Chỉ xóa dữ liệu mô phỏng demo">
+                  <i data-lucide="eraser" class="w-3.5 h-3.5 text-amber-400"></i>
+                  <span>Xóa Dữ Liệu Demo</span>
+                </button>
+
+                <button onclick="resetDatabase(); closeToolsDropdown();" class="w-full text-left px-2.5 py-1.5 text-xs text-rose-400 hover:bg-rose-500/10 rounded-xl flex items-center gap-2 transition" title="Xóa sạch toàn bộ dữ liệu">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5 text-rose-400"></i>
+                  <span>Reset Toàn Bộ DB</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Dropdown 2: Primary Action Cào Dữ Liệu Ngay (Emerald Signature) -->
             <div class="relative" id="crawl-dropdown-wrapper">
               <button 
                 onclick="toggleCrawlDropdown()" 
-                class="group inline-flex items-center gap-2.5 pl-4 pr-1.5 py-1.5 rounded-full text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500 active:scale-[0.97] shadow-lg shadow-emerald-600/30 transition-all duration-300 ease-haptic"
+                class="group inline-flex items-center gap-2 pl-3.5 sm:pl-4 pr-1.5 py-1.5 rounded-full text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500 active:scale-[0.97] shadow-lg shadow-emerald-600/30 transition-all duration-300 ease-haptic"
               >
                 <span class="tracking-tight">Cào Dữ Liệu</span>
-                <div class="w-7 h-7 rounded-full bg-black/20 flex items-center justify-center group-hover:rotate-45 transition duration-500 ease-haptic">
-                  <i data-lucide="refresh-cw" id="crawl-icon" class="w-3.5 h-3.5 text-white"></i>
+                <div class="w-6 sm:w-7 h-6 sm:h-7 rounded-full bg-black/20 flex items-center justify-center group-hover:rotate-45 transition duration-500 ease-haptic">
+                  <i data-lucide="refresh-cw" id="crawl-icon" class="w-3 sm:w-3.5 h-3 sm:h-3.5 text-white"></i>
                 </div>
               </button>
 
               <!-- Dropdown Menu with Glass Depth -->
               <div id="crawl-dropdown" class="hidden absolute right-0 mt-3 w-56 rounded-2xl bg-[#0e111a]/95 border border-white/[0.1] backdrop-blur-2xl shadow-2xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-200">
                 <div class="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Chọn mốc thời gian cào</div>
-                <button onclick="triggerCrawl('daily')" class="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-white/[0.06] rounded-xl flex items-center justify-between group transition">
+                <button onclick="triggerCrawl('daily'); closeCrawlDropdown();" class="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-white/[0.06] rounded-xl flex items-center justify-between group transition">
                   <div class="flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]"></span>
                     <span>Daily (Hôm nay)</span>
                   </div>
                   <i data-lucide="arrow-right" class="w-3 h-3 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition text-emerald-400"></i>
                 </button>
-                <button onclick="triggerCrawl('weekly')" class="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-white/[0.06] rounded-xl flex items-center justify-between group transition">
+                <button onclick="triggerCrawl('weekly'); closeCrawlDropdown();" class="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-white/[0.06] rounded-xl flex items-center justify-between group transition">
                   <div class="flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.5)]"></span>
                     <span>Weekly (Tuần này)</span>
                   </div>
                   <i data-lucide="arrow-right" class="w-3 h-3 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition text-blue-400"></i>
                 </button>
-                <button onclick="triggerCrawl('monthly')" class="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-white/[0.06] rounded-xl flex items-center justify-between group transition">
+                <button onclick="triggerCrawl('monthly'); closeCrawlDropdown();" class="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-white/[0.06] rounded-xl flex items-center justify-between group transition">
                   <div class="flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-purple-400 shadow-[0_0_8px_rgba(192,132,252,0.5)]"></span>
                     <span>Monthly (Tháng này)</span>
@@ -197,23 +231,13 @@
                   <i data-lucide="arrow-right" class="w-3 h-3 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition text-purple-400"></i>
                 </button>
                 <div class="border-t border-white/[0.08] my-1"></div>
-                <button onclick="recalculateScores()" class="w-full text-left px-3 py-2 text-xs text-cyan-300 hover:bg-cyan-500/10 rounded-xl flex items-center gap-2 transition" title="Tính toán lại Persistence Score & Velocity Score cho toàn bộ repo">
-                  <i data-lucide="calculator" class="w-3.5 h-3.5 text-cyan-400"></i>
+                <button onclick="recalculateScores(); closeCrawlDropdown();" class="w-full text-left px-3 py-2 text-xs text-emerald-300 hover:bg-emerald-500/10 rounded-xl flex items-center gap-2 transition" title="Tính toán lại Persistence Score & Velocity Score cho toàn bộ repo">
+                  <i data-lucide="calculator" class="w-3.5 h-3.5 text-emerald-400"></i>
                   <span>Tính lại điểm (Scores)</span>
                 </button>
-                <button onclick="triggerCrawl('daily', true)" class="w-full text-left px-3 py-2 text-xs text-amber-300 hover:bg-amber-500/10 rounded-xl flex items-center gap-2 transition" title="Ép buộc tăng +1 lần xuất hiện kể cả khi đã cào cùng ngày">
+                <button onclick="triggerCrawl('daily', true); closeCrawlDropdown();" class="w-full text-left px-3 py-2 text-xs text-amber-300 hover:bg-amber-500/10 rounded-xl flex items-center gap-2 transition" title="Ép buộc tăng +1 lần xuất hiện kể cả khi đã cào cùng ngày">
                   <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-amber-400"></i>
                   <span>Cào ép buộc (+1 count)</span>
-                </button>
-                <div class="border-t border-white/[0.08] my-1"></div>
-                <div class="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Quản lý dữ liệu</div>
-                <button onclick="clearDemoData()" class="w-full text-left px-3 py-2 text-xs text-amber-400/90 hover:bg-amber-500/10 rounded-xl flex items-center gap-2 transition" title="Chỉ xóa các repository mô phỏng demo, giữ lại dữ liệu cào thật">
-                  <i data-lucide="eraser" class="w-3.5 h-3.5 text-amber-400"></i>
-                  <span>Xóa dữ liệu demo</span>
-                </button>
-                <button onclick="resetDatabase()" class="w-full text-left px-3 py-2 text-xs text-rose-400 hover:bg-rose-500/10 rounded-xl flex items-center gap-2 transition" title="Xóa sạch toàn bộ dữ liệu và bắt đầu lại từ đầu">
-                  <i data-lucide="trash-2" class="w-3.5 h-3.5 text-rose-400"></i>
-                  <span>Reset toàn bộ DB</span>
                 </button>
               </div>
             </div>
@@ -290,7 +314,7 @@
             </div>
             <div>
               <div class="text-[10px] text-emerald-400 uppercase tracking-wider font-medium">Lịch Trình</div>
-              <div class="text-xs font-bold text-emerald-300 leading-tight">3 Lịch Tự Động</div>
+              <div class="text-xs font-bold text-emerald-300 leading-tight" id="stat-scheduler-label">Đang Bật (3 lịch)</div>
             </div>
           </div>
         </div>
@@ -312,92 +336,140 @@
 
     </div>
 
-    <!-- FILTER & SEARCH CONTROLS (Double-Bezel) -->
+    <!-- FILTER & SEARCH CONTROLS (Double-Bezel 2-Row Architecture) -->
     <div class="p-1 sm:p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06] shadow-xl space-y-2">
       
-      <!-- Time Window Segmented Bar (Double-Bezel Inner Core) -->
-      <div class="p-3 sm:p-3.5 rounded-[calc(1.5rem-0.375rem)] bg-[#0a0d16]/95 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] border border-white/[0.05]">
-        <div class="flex flex-wrap items-center gap-2">
-          <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-200 pr-1">
-            <i data-lucide="calendar" class="w-4 h-4 text-cyan-400"></i>
-            <span>Khung Thời Gian:</span>
+      <!-- Section 1: Time Window Segmented Bar (2 Hàng Rõ Ràng) -->
+      <div class="p-3 sm:p-4 rounded-[calc(1.5rem-0.375rem)] bg-[#0a0d16]/95 border border-white/[0.05] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] space-y-3">
+        <!-- Hàng 1: Tiêu đề + Segmented Bar các mốc thời gian -->
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 pb-2.5 border-b border-white/[0.05]">
+          <div class="flex items-center gap-2 text-xs font-semibold text-slate-200">
+            <div class="w-6 h-6 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="calendar-range" class="w-3.5 h-3.5 text-emerald-400"></i>
+            </div>
+            <span class="tracking-tight text-white font-bold">Khung Thời Gian:</span>
+            <span class="text-[11px] text-slate-400 font-light hidden sm:inline">(Cửa sổ trượt lọc bão hòa)</span>
           </div>
 
           <!-- Time Window Preset Buttons -->
-          <div class="flex items-center overflow-x-auto p-0.5 rounded-full bg-black/40 border border-white/[0.08] text-xs font-medium no-scrollbar gap-0.5" id="time-window-pills">
-            <button onclick="setTimeWindow('all')" id="win-all" class="px-3 py-1 rounded-full bg-cyan-600 text-white shadow-sm transition whitespace-nowrap">Toàn Bộ (All-time)</button>
-            <button onclick="setTimeWindow('7d')" id="win-7d" class="px-3 py-1 rounded-full text-slate-400 hover:text-white transition whitespace-nowrap">7 Ngày</button>
-            <button onclick="setTimeWindow('30d')" id="win-30d" class="px-3 py-1 rounded-full text-slate-400 hover:text-white transition whitespace-nowrap">30 Ngày</button>
-            <button onclick="setTimeWindow('90d')" id="win-90d" class="px-3 py-1 rounded-full text-slate-400 hover:text-white transition whitespace-nowrap">3 Tháng</button>
-            <button onclick="setTimeWindow('180d')" id="win-180d" class="px-3 py-1 rounded-full text-slate-400 hover:text-white transition whitespace-nowrap flex items-center gap-1.5">
+          <div class="flex items-center overflow-x-auto p-1 rounded-full bg-black/40 border border-white/[0.08] text-xs font-medium no-scrollbar gap-1 max-w-full" id="time-window-pills">
+            <button onclick="setTimeWindow('all')" id="win-all" class="px-3.5 py-1.5 rounded-full bg-emerald-600 text-white font-medium shadow-sm transition whitespace-nowrap">Toàn Bộ (All-time)</button>
+            <button onclick="setTimeWindow('7d')" id="win-7d" class="px-3.5 py-1.5 rounded-full text-slate-400 hover:text-white transition whitespace-nowrap">7 Ngày</button>
+            <button onclick="setTimeWindow('30d')" id="win-30d" class="px-3.5 py-1.5 rounded-full text-slate-400 hover:text-white transition whitespace-nowrap">30 Ngày</button>
+            <button onclick="setTimeWindow('90d')" id="win-90d" class="px-3.5 py-1.5 rounded-full text-slate-400 hover:text-white transition whitespace-nowrap">3 Tháng</button>
+            <button onclick="setTimeWindow('180d')" id="win-180d" class="px-3.5 py-1.5 rounded-full text-slate-400 hover:text-white transition whitespace-nowrap flex items-center gap-1.5">
               <span>6 Tháng Gần Đây</span>
-              <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
             </button>
-            <button onclick="setTimeWindow('365d')" id="win-365d" class="px-3 py-1 rounded-full text-slate-400 hover:text-white transition whitespace-nowrap">1 Năm</button>
+            <button onclick="setTimeWindow('365d')" id="win-365d" class="px-3.5 py-1.5 rounded-full text-slate-400 hover:text-white transition whitespace-nowrap">1 Năm</button>
           </div>
         </div>
 
-        <!-- Window Status & Inactive Filter Toggle -->
-        <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-xs">
-          <span id="window-status-pill" class="text-[11px] text-cyan-300 font-medium px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 truncate max-w-xs">
-            Toàn bộ thời gian (All-time)
-          </span>
-          <label class="flex items-center gap-1.5 cursor-pointer text-slate-400 hover:text-slate-200 select-none bg-white/[0.02] hover:bg-white/[0.05] px-2.5 py-1 rounded-full border border-white/[0.06] transition" title="Ẩn các repo không có lần xuất hiện nào trong khung thời gian đã chọn">
-            <input type="checkbox" id="hide-inactive-check" onchange="toggleHideInactive()" class="w-3.5 h-3.5 rounded bg-slate-800 border-white/[0.15] text-cyan-500 focus:ring-0">
-            <span class="text-[11px]">Chỉ hiện repo có trending trong kỳ</span>
-          </label>
+        <!-- Hàng 2: Trạng thái khung thời gian + Checkbox chỉ hiện repo active -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Phạm vi áp dụng:</span>
+            <span id="window-status-pill" class="inline-flex items-center gap-1.5 text-[11px] text-emerald-300 font-medium px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 truncate max-w-full sm:max-w-md">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.6)]"></span>
+              <span id="window-status-text">Toàn bộ thời gian (All-time)</span>
+            </span>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <label class="flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white select-none bg-white/[0.03] hover:bg-white/[0.06] px-3.5 py-1.5 rounded-full border border-white/[0.08] transition" title="Ẩn các repo không có lần xuất hiện nào trong khung thời gian đã chọn">
+              <input type="checkbox" id="hide-inactive-check" onchange="toggleHideInactive()" class="w-3.5 h-3.5 rounded bg-slate-800 border-white/[0.15] text-emerald-500 accent-emerald-500 focus:ring-0">
+              <span class="text-[11px] font-medium">Chỉ hiện repo có trending trong kỳ</span>
+            </label>
+          </div>
         </div>
       </div>
 
-      <!-- Main Search & Sub-Filters -->
-      <div class="p-3 sm:p-4 rounded-[calc(1.5rem-0.375rem)] bg-[#0a0c13]/90 flex flex-col lg:flex-row lg:items-center justify-between gap-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
+      <!-- Section 2: Main Search & Sub-Filters (2 Hàng Đàng Hoàng & Responsive) -->
+      <div class="p-3 sm:p-4 rounded-[calc(1.5rem-0.375rem)] bg-[#0a0c13]/90 border border-white/[0.05] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] space-y-3">
         
-        <!-- Search bar -->
-        <div class="relative flex-1 max-w-sm w-full">
-          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
-          <input
-            type="text"
-            id="search-input"
-            placeholder="Tìm theo tên repo, tác giả hoặc mô tả..."
-            class="w-full pl-10 pr-4 py-2 bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.15] focus:border-cyan-500/60 rounded-full text-xs text-slate-200 placeholder-slate-400 focus:outline-none transition-all duration-200"
-            oninput="handleSearchInput()"
-          >
+        <!-- Hàng 1: Ô tìm kiếm mở rộng + Tab chọn mốc cào -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-2.5 pb-2.5 border-b border-white/[0.05]">
+          <!-- Search bar (full-width on mobile, flex-1 on tablet/desktop) -->
+          <div class="relative flex-1 w-full max-w-2xl">
+            <i data-lucide="search" class="w-4 h-4 text-emerald-400/80 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Tìm theo tên repo, tác giả hoặc từ khóa mô tả..."
+              class="w-full pl-10 pr-9 py-2 bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.15] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 rounded-full text-xs text-slate-200 placeholder-slate-400 focus:outline-none transition-all duration-200"
+              oninput="handleSearchInput()"
+            >
+            <button 
+              id="search-clear-btn" 
+              onclick="clearSearchInput()" 
+              class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-0.5 rounded-full transition"
+              title="Xóa ô tìm kiếm"
+            >
+              <i data-lucide="x" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+
+          <!-- Mốc cào tabs: Daily / Weekly / Monthly -->
+          <div class="flex items-center overflow-x-auto p-1 rounded-full bg-white/[0.02] border border-white/[0.06] text-xs font-medium no-scrollbar flex-shrink-0 gap-1">
+            <button onclick="setTimeframeFilter('all')" id="tab-all" class="px-3.5 py-1.5 rounded-full bg-emerald-600 text-white shadow-sm transition whitespace-nowrap">Tất Cả Mốc</button>
+            <button onclick="setTimeframeFilter('daily')" id="tab-daily" class="px-3.5 py-1.5 rounded-full text-slate-400 hover:text-white transition whitespace-nowrap">⚡ Daily</button>
+            <button onclick="setTimeframeFilter('weekly')" id="tab-weekly" class="px-3.5 py-1.5 rounded-full text-slate-400 hover:text-white transition whitespace-nowrap">📅 Weekly</button>
+            <button onclick="setTimeframeFilter('monthly')" id="tab-monthly" class="px-3.5 py-1.5 rounded-full text-slate-400 hover:text-white transition whitespace-nowrap">🌟 Monthly</button>
+          </div>
         </div>
 
-        <!-- Filter Timeframe Pill Buttons (Daily/Weekly/Monthly) -->
-        <div class="flex items-center overflow-x-auto p-1 rounded-full bg-white/[0.02] border border-white/[0.06] text-xs font-medium no-scrollbar">
-          <button onclick="setTimeframeFilter('all')" id="tab-all" class="px-3.5 py-1.5 rounded-full bg-emerald-600 text-white shadow-sm transition-all duration-300 ease-haptic whitespace-nowrap">Tất Cả Mốc</button>
-          <button onclick="setTimeframeFilter('daily')" id="tab-daily" class="px-3.5 py-1.5 rounded-full text-slate-400 hover:text-white transition-all duration-300 whitespace-nowrap">⚡ Daily</button>
-          <button onclick="setTimeframeFilter('weekly')" id="tab-weekly" class="px-3.5 py-1.5 rounded-full text-slate-400 hover:text-white transition-all duration-300 whitespace-nowrap">📅 Weekly</button>
-          <button onclick="setTimeframeFilter('monthly')" id="tab-monthly" class="px-3.5 py-1.5 rounded-full text-slate-400 hover:text-white transition-all duration-300 whitespace-nowrap">🌟 Monthly</button>
-        </div>
+        <!-- Hàng 2: Sắp xếp, Lọc Ngôn Ngữ, Lọc >= 2 lần & Responsive Controls -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+          <!-- Filter elements with responsive wrap -->
+          <div class="flex flex-wrap items-center gap-2 sm:gap-2.5 w-full sm:w-auto">
+            <!-- Sort Dropdown -->
+            <div class="relative w-full sm:w-auto">
+              <select id="sort-select" onchange="handleSortSelectChange()" class="w-full sm:w-auto bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.15] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 rounded-full text-xs text-slate-200 py-2 pl-3.5 pr-8 focus:outline-none transition appearance-none cursor-pointer">
+                <option value="total_appearances" class="bg-slate-900 text-slate-200">Xếp theo: Số lần trending</option>
+                <option value="window_trending_score" class="bg-slate-900 text-slate-200">Xếp theo: Điểm Trending Kỳ</option>
+                <option value="persistence_score" class="bg-slate-900 text-slate-200">Xếp theo: Điểm Bền Bỉ (P-Score)</option>
+                <option value="velocity_score" class="bg-slate-900 text-slate-200">Xếp theo: Điểm Tốc Độ (V-Score)</option>
+                <option value="window_stars_gained" class="bg-slate-900 text-slate-200">Xếp theo: Stars tăng trong kỳ</option>
+                <option value="current_stars" class="bg-slate-900 text-slate-200">Xếp theo: Tổng Stars</option>
+                <option value="last_seen_at" class="bg-slate-900 text-slate-200">Xếp theo: Lần cuối thấy</option>
+              </select>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            </div>
 
-        <!-- Language, Score Sort & Repeat Filters -->
-        <div class="flex flex-wrap items-center gap-2">
-          <!-- Sort Dropdown -->
-          <select id="sort-select" onchange="handleSortSelectChange()" class="bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.15] rounded-full text-xs text-slate-200 py-2 px-3 focus:outline-none focus:border-cyan-500/60 transition">
-            <option value="total_appearances" class="bg-slate-900 text-slate-200">Xếp theo: Số lần trending</option>
-            <option value="window_trending_score" class="bg-slate-900 text-slate-200">Xếp theo: Điểm Trending Kỳ</option>
-            <option value="persistence_score" class="bg-slate-900 text-slate-200">Xếp theo: Điểm Bền Bỉ (P-Score)</option>
-            <option value="velocity_score" class="bg-slate-900 text-slate-200">Xếp theo: Điểm Tốc Độ (V-Score)</option>
-            <option value="window_stars_gained" class="bg-slate-900 text-slate-200">Xếp theo: Stars tăng trong kỳ</option>
-            <option value="current_stars" class="bg-slate-900 text-slate-200">Xếp theo: Tổng Stars</option>
-            <option value="last_seen_at" class="bg-slate-900 text-slate-200">Xếp theo: Lần cuối thấy</option>
-          </select>
+            <!-- Language Dropdown -->
+            <div class="relative w-full sm:w-auto">
+              <select id="lang-select" onchange="handleFilterChange()" class="w-full sm:w-auto bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.15] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 rounded-full text-xs text-slate-200 py-2 pl-3.5 pr-8 focus:outline-none transition appearance-none cursor-pointer">
+                <option value="all" class="bg-slate-900 text-slate-200">Tất cả ngôn ngữ</option>
+              </select>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            </div>
 
-          <!-- Language select -->
-          <select id="lang-select" onchange="handleFilterChange()" class="bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.15] rounded-full text-xs text-slate-200 py-2 px-3 focus:outline-none focus:border-cyan-500/60 transition">
-            <option value="all" class="bg-slate-900 text-slate-200">Tất cả ngôn ngữ</option>
-          </select>
+            <!-- Repeat checkbox pill -->
+            <label class="flex items-center gap-1.5 cursor-pointer bg-white/[0.03] hover:bg-white/[0.06] px-3.5 py-2 border border-white/[0.08] rounded-full text-xs select-none transition w-full sm:w-auto justify-center sm:justify-start">
+              <input type="checkbox" id="filter-repeated" onchange="handleFilterChange()" class="w-3.5 h-3.5 rounded bg-slate-800 border-white/[0.15] text-emerald-500 accent-emerald-500 focus:ring-0">
+              <span class="text-amber-300 font-semibold flex items-center gap-1">
+                <i data-lucide="flame" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span>&ge; 2 lần</span>
+              </span>
+            </label>
 
-          <!-- Repeat checkbox -->
-          <label class="flex items-center gap-1.5 cursor-pointer bg-white/[0.03] hover:bg-white/[0.06] px-3 py-2 border border-white/[0.08] rounded-full text-xs select-none transition">
-            <input type="checkbox" id="filter-repeated" onchange="handleFilterChange()" class="w-3.5 h-3.5 rounded bg-slate-800 border-white/[0.15] text-emerald-500 focus:ring-0">
-            <span class="text-amber-300 font-semibold flex items-center gap-1">
-              <i data-lucide="flame" class="w-3 h-3 text-amber-400"></i>
-              <span>&ge; 2 lần</span>
-            </span>
-          </label>
+            <!-- Reset Filters button -->
+            <button 
+              id="btn-reset-filters" 
+              onclick="resetAllFilters()" 
+              class="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-slate-400 hover:text-white hover:bg-white/[0.05] border border-transparent hover:border-white/[0.08] text-xs transition"
+              title="Đặt lại toàn bộ các bộ lọc về mặc định"
+            >
+              <i data-lucide="rotate-ccw" class="w-3 h-3 text-slate-400"></i>
+              <span>Đặt lại</span>
+            </button>
+          </div>
+
+          <!-- Live result count pill -->
+          <div class="hidden sm:flex items-center gap-1.5 text-[11px] text-slate-400 flex-shrink-0">
+            <span>Đang xem:</span>
+            <span class="text-emerald-300 font-semibold font-mono" id="filter-count-badge">0 repo</span>
+          </div>
         </div>
 
       </div>
@@ -441,8 +513,9 @@
 
                 <th class="py-4 px-3 w-20">Forks</th>
                 <th class="py-4 px-3 w-32">Tăng Kỳ Này</th>
-                <th class="py-4 px-3 w-28 cursor-pointer hover:text-white transition hidden lg:table-cell" onclick="toggleSort('last_seen_at')">
+                <th class="py-4 px-3 w-32 cursor-pointer hover:text-emerald-300 transition hidden sm:table-cell" onclick="toggleSort('last_seen_at')">
                   <div class="flex items-center gap-1">
+                    <i data-lucide="clock-3" class="w-3.5 h-3.5 text-emerald-400"></i>
                     <span>Lần Cuối Thấy</span>
                     <span id="sort-icon-last_seen_at" class="text-[10px]"></span>
                   </div>
@@ -596,11 +669,36 @@
             </div>
           </div>
 
+        <!-- Linux Cronjob Notice Box -->
+        <div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-3 text-xs">
+          <div class="w-6 h-6 rounded-xl bg-amber-500/20 border border-amber-500/35 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <i data-lucide="info" class="w-3.5 h-3.5 text-amber-400"></i>
+          </div>
+          <div class="space-y-1">
+            <div class="font-semibold text-amber-300">Đã thiết lập Cronjob trên Linux?</div>
+            <div class="text-slate-300 font-light leading-relaxed">
+              Nếu máy chủ của bạn đã cài đặt lịch cào bằng <b>Linux Crontab</b> (qua script <code class="px-1.5 py-0.5 rounded bg-black/40 text-amber-200 text-[11px] font-mono">./crawl_cron.sh</code> hoặc <code class="px-1.5 py-0.5 rounded bg-black/40 text-amber-200 text-[11px] font-mono">app/cli_crawl.py</code>), hãy <b>TẮT</b> bộ lập lịch ngầm nội bộ này để tránh việc cào dữ liệu bị trùng lặp.
+            </div>
+          </div>
         </div>
 
-        <div class="flex items-center justify-between pt-2 border-t border-white/[0.08]">
-          <span class="text-[11px] text-slate-400">Trạng thái: <b class="text-emerald-400 font-medium">● Đang hoạt động ngầm (Active)</b></span>
-          <button onclick="closeSchedulerModal()" class="px-5 py-2 rounded-full text-xs font-medium bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 border border-white/[0.08] transition">Đóng</button>
+        <!-- Action Footer with Toggle Switch -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-white/[0.08]">
+          <div id="scheduler-status-indicator" class="text-xs text-slate-300">
+            Trạng thái: <b class="text-emerald-400 font-medium">● Đang hoạt động ngầm (APScheduler Active)</b>
+          </div>
+          <div class="flex items-center gap-2.5">
+            <button 
+              id="btn-toggle-scheduler" 
+              onclick="toggleScheduler()" 
+              class="px-4 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30 transition flex items-center gap-2"
+              title="Bật hoặc tắt bộ lập lịch nội bộ"
+            >
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Đang Bật (Bấm để Tắt)</span>
+            </button>
+            <button onclick="closeSchedulerModal()" class="px-4 py-1.5 rounded-full text-xs font-medium bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 border border-white/[0.08] transition">Đóng</button>
+          </div>
         </div>
 
       </div>
@@ -728,7 +826,7 @@
 
         <!-- Preset Period Selectors -->
         <div class="flex items-center gap-1.5 overflow-x-auto p-1 rounded-full bg-black/40 border border-white/[0.08] text-xs no-scrollbar" id="compare-presets-bar">
-          <button onclick="changeComparePreset('6m_vs_prior_6m')" id="cp-preset-6m_prior" class="px-3.5 py-1 rounded-full bg-cyan-600 text-white font-medium shadow-sm transition whitespace-nowrap">
+          <button onclick="changeComparePreset('6m_vs_prior_6m')" id="cp-preset-6m_prior" class="px-3.5 py-1 rounded-full bg-emerald-600 text-white font-medium shadow-sm transition whitespace-nowrap">
             6 Tháng Gần Đây vs 6 Tháng Trước
           </button>
           <button onclick="changeComparePreset('6m_vs_same_last_year')" id="cp-preset-6m_year" class="px-3.5 py-1 rounded-full text-slate-400 hover:text-white font-medium transition whitespace-nowrap">
@@ -942,11 +1040,15 @@
       loadRepositories();
       loadSchedulerJobs();
 
-      // Close dropdown when clicked outside
+      // Close dropdowns when clicked outside
       document.addEventListener("click", (e) => {
-        const wrapper = document.getElementById("crawl-dropdown-wrapper");
-        if (wrapper && !wrapper.contains(e.target)) {
-          document.getElementById("crawl-dropdown").classList.add("hidden");
+        const crawlWrapper = document.getElementById("crawl-dropdown-wrapper");
+        if (crawlWrapper && !crawlWrapper.contains(e.target)) {
+          closeCrawlDropdown();
+        }
+        const toolsWrapper = document.getElementById("tools-dropdown-wrapper");
+        if (toolsWrapper && !toolsWrapper.contains(e.target)) {
+          closeToolsDropdown();
         }
       });
     });
@@ -975,9 +1077,26 @@
       }, 3500);
     }
 
+    function toggleToolsDropdown() {
+      const dropdown = document.getElementById("tools-dropdown");
+      if (dropdown) dropdown.classList.toggle("hidden");
+      closeCrawlDropdown();
+    }
+
+    function closeToolsDropdown() {
+      const dropdown = document.getElementById("tools-dropdown");
+      if (dropdown) dropdown.classList.add("hidden");
+    }
+
     function toggleCrawlDropdown() {
       const dropdown = document.getElementById("crawl-dropdown");
-      dropdown.classList.toggle("hidden");
+      if (dropdown) dropdown.classList.toggle("hidden");
+      closeToolsDropdown();
+    }
+
+    function closeCrawlDropdown() {
+      const dropdown = document.getElementById("crawl-dropdown");
+      if (dropdown) dropdown.classList.add("hidden");
     }
 
     async function loadStats() {
@@ -1022,9 +1141,11 @@
         const res = await fetch("/api/scheduler/jobs");
         if (!res.ok) return;
         const jobs = await res.json();
+        let isActive = false;
 
         jobs.forEach(j => {
-          const formatted = j.next_run_time ? new Date(j.next_run_time).toLocaleString("vi-VN") : "Đang chờ chạy";
+          if (j.is_running) isActive = true;
+          const formatted = j.next_run_time ? new Date(j.next_run_time).toLocaleString("vi-VN") : "Đang tạm dừng / Cronjob";
           if (j.id === "job_crawl_daily") {
             const el = document.getElementById("next-run-daily");
             if (el) el.textContent = formatted;
@@ -1036,8 +1157,58 @@
             if (el) el.textContent = formatted;
           }
         });
+        updateSchedulerUI(isActive);
       } catch (e) {
         console.error("Lỗi khi tải scheduler jobs:", e);
+      }
+    }
+
+    function updateSchedulerUI(isActive) {
+      const statLabel = document.getElementById("stat-scheduler-label");
+      if (statLabel) {
+        if (isActive) {
+          statLabel.innerHTML = `<span class="text-emerald-300 font-bold">Đang Bật</span> <span class="text-[10px] text-slate-400 font-normal">(3 lịch)</span>`;
+        } else {
+          statLabel.innerHTML = `<span class="text-amber-400 font-bold">Tạm Dừng</span> <span class="text-[10px] text-slate-400 font-normal">(Cronjob)</span>`;
+        }
+      }
+
+      const toggleBtn = document.getElementById("btn-toggle-scheduler");
+      const statusText = document.getElementById("scheduler-status-indicator");
+      if (toggleBtn) {
+        if (isActive) {
+          toggleBtn.className = "px-4 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30 transition flex items-center gap-2";
+          toggleBtn.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span>Đang Bật (Bấm để Tắt)</span>`;
+          toggleBtn.title = "Bấm để tắt bộ lập lịch nội bộ (dành cho khi bạn đã cài cronjob)";
+        } else {
+          toggleBtn.className = "px-4 py-1.5 rounded-full text-xs font-semibold bg-white/[0.05] text-slate-300 border border-white/[0.12] hover:bg-white/[0.1] hover:text-white transition flex items-center gap-2";
+          toggleBtn.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-500"></span><span>Đã Tắt (Bấm để Bật)</span>`;
+          toggleBtn.title = "Bấm để bật lại bộ lập lịch nội bộ";
+        }
+      }
+
+      if (statusText) {
+        if (isActive) {
+          statusText.innerHTML = `Trạng thái: <b class="text-emerald-400 font-medium">● Đang hoạt động ngầm (APScheduler Active)</b>`;
+        } else {
+          statusText.innerHTML = `Trạng thái: <b class="text-amber-400 font-medium">○ Đã Tắt / Chế độ Cronjob Linux độc lập</b>`;
+        }
+      }
+    }
+
+    async function toggleScheduler() {
+      const btn = document.getElementById("btn-toggle-scheduler");
+      if (btn) btn.disabled = true;
+      try {
+        const res = await fetch("/api/scheduler/toggle", { method: "POST" });
+        if (!res.ok) throw new Error("Không thể thay đổi trạng thái scheduler");
+        const data = await res.json();
+        showToast(data.message, data.is_active ? "success" : "warning");
+        await loadSchedulerJobs();
+      } catch (e) {
+        showToast("Lỗi: " + e.message, "error");
+      } finally {
+        if (btn) btn.disabled = false;
       }
     }
 
@@ -1048,7 +1219,7 @@
         <tr>
           <td colspan="12" class="py-16 text-center text-slate-400">
             <div class="flex flex-col items-center justify-center space-y-3">
-              <div class="w-7 h-7 rounded-full border-2 border-cyan-500/30 border-t-cyan-400 animate-spin"></div>
+              <div class="w-7 h-7 rounded-full border-2 border-emerald-500/30 border-t-emerald-400 animate-spin"></div>
               <p class="text-xs font-light">Đang phân tích và tính toán dữ liệu theo kỳ...</p>
             </div>
           </td>
@@ -1081,9 +1252,18 @@
         state.totalPages = data.total_pages;
 
         // Cập nhật nhãn trạng thái kỳ
-        const statusPill = document.getElementById("window-status-pill");
-        if (statusPill) {
-          statusPill.textContent = data.time_window_label || "Toàn bộ thời gian (All-time)";
+        const statusText = document.getElementById("window-status-text");
+        if (statusText) {
+          statusText.textContent = data.time_window_label || "Toàn bộ thời gian (All-time)";
+        } else {
+          const statusPill = document.getElementById("window-status-pill");
+          if (statusPill) statusPill.textContent = data.time_window_label || "Toàn bộ thời gian (All-time)";
+        }
+
+        // Cập nhật badge số lượng kết quả
+        const countBadge = document.getElementById("filter-count-badge");
+        if (countBadge) {
+          countBadge.textContent = `${data.total.toLocaleString()} repo`;
         }
 
         // Cập nhật header bảng theo kỳ
@@ -1265,7 +1445,23 @@
         const forksFormatted = repo.current_forks ? repo.current_forks.toLocaleString() : "0";
         const windowStars = (repo.window_stars_gained || 0).toLocaleString();
         const periodStars = repo.latest_period_stars || "—";
-        const lastSeen = repo.last_seen_at ? new Date(repo.last_seen_at).toLocaleDateString("vi-VN") : "—";
+        
+        // Định dạng Ngày & Giờ Lần Cuối Thấy
+        let lastSeenHtml = '<span class="text-slate-500 font-mono text-xs">—</span>';
+        if (repo.last_seen_at) {
+          const rawSeen = String(repo.last_seen_at);
+          const d = new Date(rawSeen.includes('T') ? rawSeen : rawSeen.replace(' ', 'T'));
+          if (!isNaN(d.getTime())) {
+            const dateStr = d.toLocaleDateString("vi-VN", { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const timeStr = d.toLocaleTimeString("vi-VN", { hour: '2-digit', minute: '2-digit' });
+            lastSeenHtml = `
+              <div class="inline-flex flex-col text-slate-300 font-mono text-[11px]" title="Ghi nhận lúc ${timeStr} ngày ${dateStr}">
+                <span class="text-slate-200 font-medium">${dateStr}</span>
+                <span class="text-[10px] text-slate-400">${timeStr}</span>
+              </div>
+            `;
+          }
+        }
 
         let starsColumnHtml = '';
         if (isWindowed) {
@@ -1297,21 +1493,21 @@
             <!-- Repository Column with Minimal Line & Hover Description Popup -->
             <td class="py-3 px-4 min-w-[200px] max-w-xs">
               <div class="flex items-center gap-1.5 relative group/desc">
-                <a href="${repo.url}" target="_blank" class="font-semibold text-slate-100 hover:text-cyan-400 inline-flex items-center gap-1 transition truncate" title="Xem repository trên GitHub">
+                <a href="${repo.url}" target="_blank" class="font-semibold text-slate-100 hover:text-emerald-400 inline-flex items-center gap-1 transition truncate" title="Xem repository trên GitHub">
                   <span class="text-slate-400 font-normal whitespace-nowrap">${repo.owner}&nbsp;/</span>
-                  <span class="font-bold text-slate-100 group-hover:text-cyan-400 transition truncate">${repo.name}</span>
-                  <i data-lucide="external-link" class="w-3 h-3 text-slate-500 group-hover:text-cyan-400 opacity-0 group-hover:opacity-100 transition flex-shrink-0"></i>
+                  <span class="font-bold text-slate-100 group-hover:text-emerald-400 transition truncate">${repo.name}</span>
+                  <i data-lucide="external-link" class="w-3 h-3 text-slate-500 group-hover:text-emerald-400 opacity-0 group-hover:opacity-100 transition flex-shrink-0"></i>
                 </a>
 
                 ${repo.description ? `
                   <div class="relative inline-flex flex-shrink-0">
-                    <span class="text-slate-600 hover:text-cyan-400 p-0.5 rounded cursor-help transition" title="Rê chuột để xem mô tả">
+                    <span class="text-slate-600 hover:text-emerald-400 p-0.5 rounded cursor-help transition" title="Rê chuột để xem mô tả">
                       <i data-lucide="help-circle" class="w-3 h-3"></i>
                     </span>
                     <!-- Hover Glass Popup -->
                     <div class="absolute left-0 bottom-full mb-2 hidden group-hover/desc:block z-50 w-72 sm:w-80 p-3 rounded-2xl bg-[#0d1017]/95 border border-white/[0.15] backdrop-blur-2xl shadow-2xl pointer-events-none text-left animate-in fade-in zoom-in-95 duration-150">
                       <div class="flex items-center gap-1.5 text-xs font-bold text-white mb-1.5 pb-1 border-b border-white/[0.08]">
-                        <i data-lucide="book-open" class="w-3.5 h-3.5 text-cyan-400"></i>
+                        <i data-lucide="book-open" class="w-3.5 h-3.5 text-emerald-400"></i>
                         <span class="truncate">${repo.full_name}</span>
                       </div>
                       <p class="text-[11px] text-slate-300 font-light leading-relaxed whitespace-normal">${descSafe}</p>
@@ -1356,9 +1552,9 @@
               </span>
             </td>
 
-            <!-- Lần Cuối Thấy -->
-            <td class="py-3 px-3 text-slate-400 text-xs whitespace-nowrap hidden lg:table-cell">
-              ${lastSeen}
+            <!-- Lần Cuối Thấy (Hiển thị ngày & giờ rõ ràng) -->
+            <td class="py-3 px-3 text-slate-400 text-xs whitespace-nowrap hidden sm:table-cell">
+              ${lastSeenHtml}
             </td>
 
             <!-- 3 CỘT CUỐI: VÒNG ĐỜI, BỀN BỈ (P-SCORE), TỐC ĐỘ (V-SCORE) -->
@@ -1422,12 +1618,61 @@
     }
 
     function handleSearchInput() {
+      const val = document.getElementById("search-input").value;
+      const clearBtn = document.getElementById("search-clear-btn");
+      if (clearBtn) {
+        if (val.trim()) clearBtn.classList.remove("hidden");
+        else clearBtn.classList.add("hidden");
+      }
+
       clearTimeout(searchDebounceTimeout);
       searchDebounceTimeout = setTimeout(() => {
-        state.search = document.getElementById("search-input").value.trim();
+        state.search = val.trim();
         state.page = 1;
         loadRepositories();
       }, 250);
+    }
+
+    function clearSearchInput() {
+      const input = document.getElementById("search-input");
+      if (input) {
+        input.value = "";
+        const clearBtn = document.getElementById("search-clear-btn");
+        if (clearBtn) clearBtn.classList.add("hidden");
+        state.search = "";
+        state.page = 1;
+        loadRepositories();
+      }
+    }
+
+    function resetAllFilters() {
+      const searchInput = document.getElementById("search-input");
+      if (searchInput) searchInput.value = "";
+      const clearBtn = document.getElementById("search-clear-btn");
+      if (clearBtn) clearBtn.classList.add("hidden");
+
+      const langSelect = document.getElementById("lang-select");
+      if (langSelect) langSelect.value = "all";
+
+      const repeatCheck = document.getElementById("filter-repeated");
+      if (repeatCheck) repeatCheck.checked = false;
+
+      const hideInactiveCheck = document.getElementById("hide-inactive-check");
+      if (hideInactiveCheck) hideInactiveCheck.checked = false;
+
+      const sortSelect = document.getElementById("sort-select");
+      if (sortSelect) sortSelect.value = "total_appearances";
+
+      state.search = "";
+      state.language = "all";
+      state.minAppearances = null;
+      state.hideInactive = false;
+      state.sortBy = "total_appearances";
+      state.sortDir = "desc";
+
+      setTimeframeFilter('all');
+      setTimeWindow('all');
+      showToast("Đã đặt lại toàn bộ các bộ lọc về mặc định", "success");
     }
 
     function setTimeframeFilter(since) {
@@ -1540,8 +1785,11 @@
 
     async function seedDemoData() {
       const btn = document.getElementById("btn-seed-demo");
-      btn.disabled = true;
-      btn.innerHTML = `<span class="inline-block w-3.5 h-3.5 rounded-full border-2 border-amber-400 border-t-transparent animate-spin"></span><span class="text-xs">Đang nạp...</span>`;
+      const originalHtml = btn ? btn.innerHTML : "";
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<div class="flex items-center gap-2 text-amber-300 py-1"><span class="inline-block w-3.5 h-3.5 rounded-full border-2 border-amber-400 border-t-transparent animate-spin"></span><span class="text-xs">Đang nạp mô phỏng 3 ngày...</span></div>`;
+      }
 
       try {
         const res = await fetch("/api/seed-demo", { method: "POST" });
@@ -1555,15 +1803,11 @@
       } catch (err) {
         showToast(`Lỗi: ${err.message}`, "error");
       } finally {
-        btn.disabled = false;
-        btn.innerHTML = `
-          <span class="hidden sm:inline">Nạp Demo (3 Ngày)</span>
-          <span class="sm:hidden">Demo</span>
-          <div class="w-6 h-6 rounded-full bg-amber-500/15 border border-amber-500/30 flex items-center justify-center">
-            <i data-lucide="sparkles" class="w-3 h-3 text-amber-400"></i>
-          </div>
-        `;
-        lucide.createIcons();
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = originalHtml;
+          lucide.createIcons();
+        }
       }
     }
 
@@ -1729,9 +1973,9 @@
         const el = document.getElementById(`win-${p}`);
         if (el) {
           if (p === code) {
-            el.className = "px-3 py-1 rounded-full bg-cyan-600 text-white shadow-sm transition whitespace-nowrap flex items-center gap-1.5";
+            el.className = "px-3.5 py-1.5 rounded-full bg-emerald-600 text-white font-medium shadow-md shadow-emerald-600/30 transition whitespace-nowrap flex items-center gap-1.5";
           } else {
-            el.className = "px-3 py-1 rounded-full text-slate-400 hover:text-white transition whitespace-nowrap flex items-center gap-1.5";
+            el.className = "px-3.5 py-1.5 rounded-full text-slate-400 hover:text-white transition whitespace-nowrap flex items-center gap-1.5";
           }
         }
       });
@@ -1756,10 +2000,10 @@
     }
 
     async function seedTimelineDemo() {
-      const btn = document.getElementById("btn-seed-timeline");
+      const originalHtml = btn ? btn.innerHTML : "";
       if (btn) {
         btn.disabled = true;
-        btn.innerHTML = `<span class="inline-block w-3.5 h-3.5 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin"></span><span class="text-xs">Đang nạp...</span>`;
+        btn.innerHTML = `<div class="flex items-center gap-2 text-emerald-300 py-1"><span class="inline-block w-3.5 h-3.5 rounded-full border-2 border-emerald-400 border-t-transparent animate-spin"></span><span class="text-xs">Đang nạp 12 tháng...</span></div>`;
       }
 
       showToast("Đang nạp mô phỏng timeline 12-18 tháng cho 5 loại repository...", "success");
@@ -1778,13 +2022,7 @@
       } finally {
         if (btn) {
           btn.disabled = false;
-          btn.innerHTML = `
-            <span class="hidden sm:inline">Demo 12 Tháng</span>
-            <span class="sm:hidden">12T</span>
-            <div class="w-6 h-6 rounded-full bg-cyan-500/20 border border-cyan-500/35 flex items-center justify-center group-hover:scale-105 transition duration-300">
-              <i data-lucide="line-chart" class="w-3 h-3 text-cyan-400"></i>
-            </div>
-          `;
+          btn.innerHTML = originalHtml;
           lucide.createIcons();
         }
       }
@@ -1815,7 +2053,7 @@
         const el = document.getElementById(btnId);
         if (el) {
           if (key === preset) {
-            el.className = "px-3.5 py-1 rounded-full bg-cyan-600 text-white font-medium shadow-sm transition whitespace-nowrap";
+            el.className = "px-3.5 py-1 rounded-full bg-emerald-600 text-white font-medium shadow-md shadow-emerald-600/30 transition whitespace-nowrap";
           } else {
             el.className = "px-3.5 py-1 rounded-full text-slate-400 hover:text-white font-medium transition whitespace-nowrap";
           }
@@ -1824,7 +2062,7 @@
 
       trajectoryContainer.innerHTML = `
         <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.08] text-center">
-          <div class="w-7 h-7 rounded-full border-2 border-cyan-500/30 border-t-cyan-400 animate-spin mx-auto mb-2"></div>
+          <div class="w-7 h-7 rounded-full border-2 border-emerald-500/30 border-t-emerald-400 animate-spin mx-auto mb-2"></div>
           <p class="text-xs text-slate-400">Đang đối chiếu dữ liệu 2 thời kỳ...</p>
         </div>
       `;

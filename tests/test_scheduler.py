@@ -32,5 +32,18 @@ def test_scheduler_jobs_registration():
     assert monthly_job["since"] == "monthly"
     assert monthly_job["frequency_label"] == "2 lần / tuần"
 
+    from app.scheduler import is_scheduler_active, toggle_scheduler
+    assert is_scheduler_active() is True
+    # Pause scheduler
+    active = toggle_scheduler(enable=False)
+    assert active is False
+    assert is_scheduler_active() is False
+
+    # Resume scheduler
+    active = toggle_scheduler(enable=True)
+    assert active is True
+    assert is_scheduler_active() is True
+
     shutdown_scheduler()
     assert scheduler.running is False
+
