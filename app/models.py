@@ -2,6 +2,7 @@ from datetime import datetime, timezone, date
 from sqlalchemy import (
     Column,
     Integer,
+    Float,
     String,
     Text,
     DateTime,
@@ -37,6 +38,12 @@ class Repository(Base):
     latest_period_stars = Column(String(100), nullable=True)
     latest_rank = Column(Integer, nullable=True)
     
+    # Điểm đánh giá (Analytics Scores)
+    persistence_score = Column(Float, default=0.0, index=True)
+    velocity_score = Column(Float, default=0.0, index=True)
+    persistence_level = Column(String(30), default="new")  # legend, high, medium, new
+    velocity_level = Column(String(30), default="slow")    # rocket, surging, steady, slow
+    
     # Mốc thời gian
     first_seen_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     last_seen_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
@@ -58,6 +65,10 @@ class Repository(Base):
             "daily_appearances": self.daily_appearances,
             "weekly_appearances": self.weekly_appearances,
             "monthly_appearances": self.monthly_appearances,
+            "persistence_score": round(self.persistence_score or 0.0, 1),
+            "velocity_score": round(self.velocity_score or 0.0, 1),
+            "persistence_level": self.persistence_level or "new",
+            "velocity_level": self.velocity_level or "slow",
             "current_stars": self.current_stars,
             "current_forks": self.current_forks,
             "latest_period_stars": self.latest_period_stars,

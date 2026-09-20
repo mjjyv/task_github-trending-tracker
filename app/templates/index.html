@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>GitHub Trending Tracker — Thống Kê & Bảng Xếp Hạng Xu Hướng</title>
+  <title>GitHub Trending Tracker — Thống Kê, Lịch Tự Động & Chấm Điểm</title>
   
   <!-- Premium Font: Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -61,7 +61,6 @@
     ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 9999px; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.22); }
 
-    /* Motion ease curve */
     .ease-haptic {
       transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
     }
@@ -88,20 +87,20 @@
               <div class="flex items-center gap-2">
                 <span class="text-sm sm:text-base font-bold tracking-tight text-white">GitHub Trending Tracker</span>
                 <span class="hidden sm:inline-flex text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                  LIVE
+                  AUTO
                 </span>
               </div>
-              <p class="hidden md:block text-[11px] text-slate-400 font-light -mt-0.5">Theo dõi thứ hạng & thống kê số lần xuất hiện</p>
+              <p class="hidden md:block text-[11px] text-slate-400 font-light -mt-0.5">Lịch cào tự động & Tính điểm Bền bỉ (Persistence) • Tốc độ (Velocity)</p>
             </div>
           </div>
 
           <!-- Actions & CTA: Nested Button Architecture -->
-          <div class="flex items-center gap-2 sm:gap-3">
+          <div class="flex items-center gap-2 sm:gap-2.5">
             <!-- Nạp Demo button -->
             <button 
               id="btn-seed-demo" 
               onclick="seedDemoData()" 
-              title="Mô phỏng dữ liệu cào 3 ngày liên tiếp để kiểm tra số lần xuất hiện 1 -> 2 -> 3" 
+              title="Mô phỏng cào 3 ngày liên tiếp để kiểm tra số lần xuất hiện và tính điểm" 
               class="group relative inline-flex items-center gap-2 pl-3.5 pr-2 py-1.5 rounded-full text-xs font-medium text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] transition-all duration-300 active:scale-[0.97] ease-haptic"
             >
               <span class="hidden sm:inline">Nạp Demo (3 Ngày)</span>
@@ -111,12 +110,25 @@
               </div>
             </button>
 
+            <!-- Lịch Cào Tự Động Button -->
+            <button 
+              onclick="openSchedulerModal()" 
+              class="inline-flex items-center gap-2 pl-3.5 pr-2 py-1.5 rounded-full text-xs font-medium text-emerald-300 hover:text-white bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 transition-all duration-300 active:scale-[0.97] ease-haptic"
+              title="Xem cấu hình cào tự động: Daily 3x/ngày, Weekly 1x/ngày, Monthly 2x/tuần"
+            >
+              <span class="hidden sm:inline">Lịch Tự Động</span>
+              <span class="sm:hidden">Lịch</span>
+              <div class="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center">
+                <i data-lucide="clock" class="w-3 h-3 text-emerald-400"></i>
+              </div>
+            </button>
+
             <!-- Lịch Sử Button -->
             <button 
               onclick="openSessionsModal()" 
-              class="hidden sm:inline-flex items-center gap-2 pl-3.5 pr-2 py-1.5 rounded-full text-xs font-medium text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] transition-all duration-300 active:scale-[0.97] ease-haptic"
+              class="hidden md:inline-flex items-center gap-2 pl-3.5 pr-2 py-1.5 rounded-full text-xs font-medium text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] transition-all duration-300 active:scale-[0.97] ease-haptic"
             >
-              <span>Lịch Sử Cào</span>
+              <span>Lịch Sử</span>
               <div class="w-6 h-6 rounded-full bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center">
                 <i data-lucide="history" class="w-3 h-3 text-cyan-400"></i>
               </div>
@@ -136,7 +148,7 @@
 
               <!-- Dropdown Menu with Glass Depth -->
               <div id="crawl-dropdown" class="hidden absolute right-0 mt-3 w-56 rounded-2xl bg-[#0e111a]/95 border border-white/[0.1] backdrop-blur-2xl shadow-2xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-200">
-                <div class="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Chọn mốc thời gian</div>
+                <div class="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Chọn mốc thời gian cào</div>
                 <button onclick="triggerCrawl('daily')" class="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-white/[0.06] rounded-xl flex items-center justify-between group transition">
                   <div class="flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]"></span>
@@ -159,6 +171,10 @@
                   <i data-lucide="arrow-right" class="w-3 h-3 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition text-purple-400"></i>
                 </button>
                 <div class="border-t border-white/[0.08] my-1"></div>
+                <button onclick="recalculateScores()" class="w-full text-left px-3 py-2 text-xs text-cyan-300 hover:bg-cyan-500/10 rounded-xl flex items-center gap-2 transition" title="Tính toán lại Persistence Score & Velocity Score cho toàn bộ repo">
+                  <i data-lucide="calculator" class="w-3.5 h-3.5 text-cyan-400"></i>
+                  <span>Tính lại điểm (Scores)</span>
+                </button>
                 <button onclick="triggerCrawl('daily', true)" class="w-full text-left px-3 py-2 text-xs text-amber-300 hover:bg-amber-500/10 rounded-xl flex items-center gap-2 transition" title="Ép buộc tăng +1 lần xuất hiện kể cả khi đã cào cùng ngày">
                   <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-amber-400"></i>
                   <span>Cào ép buộc (+1 count)</span>
@@ -176,26 +192,26 @@
   <!-- MAIN VIEWPORT CONTENT -->
   <main class="max-w-7xl mx-auto w-full px-3 sm:px-6 py-6 sm:py-8 flex-1 space-y-6">
 
-    <!-- EYEBROW & HERO INTRO (Spatial Rhythm) -->
+    <!-- EYEBROW & HERO INTRO -->
     <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2">
       <div>
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-[10px] uppercase font-semibold tracking-[0.18em] text-emerald-400 mb-2">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          GitHub Repository Analytics
+          Automated Crawling & Analytics Engine
         </div>
         <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-white">
-          Thống Kê Xu Hướng Kho Mã Nguồn
+          Thống Kê Xu Hướng & Phân Tích Chuyên Sâu
         </h2>
-        <p class="text-xs sm:text-sm text-slate-400 mt-1 max-w-xl font-light">
-          Bảng theo dõi số lần xuất hiện lũy kế qua các ngày, hỗ trợ bóc tách chi tiết thứ hạng, lượng sao và ngôn ngữ thịnh hành.
+        <p class="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl font-light">
+          Hệ thống cào tự động định kỳ (Daily 3x/ngày, Weekly 1x/ngày, Monthly 2x/tuần) và tính toán lũy kế <b>Điểm Bền Bỉ (Persistence Score)</b> cùng <b>Điểm Tốc Độ (Velocity Score)</b>.
         </p>
       </div>
 
-      <!-- Mobile quick stats button -->
+      <!-- Quick stats mobile shortcut -->
       <div class="flex sm:hidden items-center gap-2">
-        <button onclick="openSessionsModal()" class="w-full py-2 px-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-xs text-slate-300 flex items-center justify-center gap-2">
-          <i data-lucide="history" class="w-3.5 h-3.5 text-cyan-400"></i>
-          <span>Xem Nhật Ký Cào</span>
+        <button onclick="openSchedulerModal()" class="w-full py-2 px-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-xs text-emerald-300 flex items-center justify-center gap-2">
+          <i data-lucide="clock" class="w-3.5 h-3.5 text-emerald-400"></i>
+          <span>Lịch Cào Tự Động</span>
         </button>
       </div>
     </div>
@@ -239,14 +255,14 @@
       <div class="p-1 sm:p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06] shadow-xl">
         <div class="p-4 sm:p-5 rounded-[calc(1.5rem-0.375rem)] bg-[#0b0d14]/90 h-full flex flex-col justify-between shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
           <div class="flex items-center justify-between">
-            <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Đợt Cào Đã Chạy</span>
+            <span class="text-[11px] font-medium text-emerald-400 uppercase tracking-wider">Lịch Trình Tự Động</span>
             <div class="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
-              <i data-lucide="activity" class="w-4 h-4"></i>
+              <i data-lucide="cpu" class="w-4 h-4"></i>
             </div>
           </div>
           <div class="mt-3">
-            <div class="text-2xl sm:text-3xl font-bold tracking-tight text-emerald-400" id="stat-total-sessions">—</div>
-            <p class="text-[11px] text-slate-400 font-light mt-0.5">Tự động & thủ công</p>
+            <div class="text-sm sm:text-base font-bold tracking-tight text-emerald-300">3 Lịch Hoạt Động</div>
+            <p class="text-[11px] text-slate-400 font-light mt-0.5">Daily 3x • Wk 1x • Mo 2x</p>
           </div>
         </div>
       </div>
@@ -271,10 +287,10 @@
 
     <!-- FILTER & SEARCH CONTROLS (Double-Bezel) -->
     <div class="p-1 sm:p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06] shadow-xl">
-      <div class="p-3 sm:p-4 rounded-[calc(1.5rem-0.375rem)] bg-[#0a0c13]/90 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
+      <div class="p-3 sm:p-4 rounded-[calc(1.5rem-0.375rem)] bg-[#0a0c13]/90 flex flex-col lg:flex-row lg:items-center justify-between gap-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
         
-        <!-- Search bar with minimal hairlines -->
-        <div class="relative flex-1 max-w-md w-full">
+        <!-- Search bar -->
+        <div class="relative flex-1 max-w-sm w-full">
           <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
           <input
             type="text"
@@ -293,13 +309,24 @@
           <button onclick="setTimeframeFilter('monthly')" id="tab-monthly" class="px-3.5 py-1.5 rounded-full text-slate-400 hover:text-white transition-all duration-300 whitespace-nowrap">🌟 Monthly</button>
         </div>
 
-        <!-- Language & Repeat Filters -->
-        <div class="flex items-center gap-2 w-full md:w-auto justify-between md:justify-end">
-          <select id="lang-select" onchange="handleFilterChange()" class="bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.15] rounded-full text-xs text-slate-200 py-2 px-3.5 focus:outline-none focus:border-emerald-500/60 transition">
+        <!-- Language, Score Sort & Repeat Filters -->
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Sort Dropdown -->
+          <select id="sort-select" onchange="handleSortSelectChange()" class="bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.15] rounded-full text-xs text-slate-200 py-2 px-3 focus:outline-none focus:border-emerald-500/60 transition">
+            <option value="total_appearances" class="bg-slate-900 text-slate-200">Xếp theo: Số lần xuất hiện</option>
+            <option value="persistence_score" class="bg-slate-900 text-slate-200">Xếp theo: Điểm Bền Bỉ (P-Score)</option>
+            <option value="velocity_score" class="bg-slate-900 text-slate-200">Xếp theo: Điểm Tốc Độ (V-Score)</option>
+            <option value="current_stars" class="bg-slate-900 text-slate-200">Xếp theo: Tổng Stars</option>
+            <option value="last_seen_at" class="bg-slate-900 text-slate-200">Xếp theo: Lần cuối thấy</option>
+          </select>
+
+          <!-- Language select -->
+          <select id="lang-select" onchange="handleFilterChange()" class="bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.15] rounded-full text-xs text-slate-200 py-2 px-3 focus:outline-none focus:border-emerald-500/60 transition">
             <option value="all" class="bg-slate-900 text-slate-200">Tất cả ngôn ngữ</option>
           </select>
 
-          <label class="flex items-center gap-2 cursor-pointer bg-white/[0.03] hover:bg-white/[0.06] px-3.5 py-2 border border-white/[0.08] rounded-full text-xs select-none transition">
+          <!-- Repeat checkbox -->
+          <label class="flex items-center gap-1.5 cursor-pointer bg-white/[0.03] hover:bg-white/[0.06] px-3 py-2 border border-white/[0.08] rounded-full text-xs select-none transition">
             <input type="checkbox" id="filter-repeated" onchange="handleFilterChange()" class="w-3.5 h-3.5 rounded bg-slate-800 border-white/[0.15] text-emerald-500 focus:ring-0">
             <span class="text-amber-300 font-semibold flex items-center gap-1">
               <i data-lucide="flame" class="w-3 h-3 text-amber-400"></i>
@@ -320,43 +347,64 @@
           <table class="min-w-full text-left border-collapse text-xs">
             <thead>
               <tr class="border-b border-white/[0.06] bg-white/[0.015] text-slate-400 font-semibold tracking-wider text-[11px] whitespace-nowrap">
-                <th class="py-4 px-4 w-12 text-center">#</th>
-                <th class="py-4 px-4 cursor-pointer hover:text-white transition group min-w-[260px]" onclick="toggleSort('full_name')">
+                <th class="py-4 px-3 w-12 text-center">#</th>
+                <th class="py-4 px-4 cursor-pointer hover:text-white transition group min-w-[240px]" onclick="toggleSort('full_name')">
                   <div class="flex items-center gap-1.5">
                     <span>Repository</span>
                     <i data-lucide="chevrons-up-down" class="w-3 h-3 text-slate-400 group-hover:text-white transition"></i>
                   </div>
                 </th>
-                <th class="py-4 px-4 w-28">Ngôn Ngữ</th>
-                <th class="py-4 px-4 w-40 cursor-pointer hover:text-amber-300 transition text-center" onclick="toggleSort('total_appearances')">
+                <th class="py-4 px-3 w-28">Ngôn Ngữ</th>
+                
+                <!-- Cột Số Lần Xuất Hiện -->
+                <th class="py-4 px-3 w-36 cursor-pointer hover:text-amber-300 transition text-center" onclick="toggleSort('total_appearances')">
                   <div class="flex items-center justify-center gap-1 text-amber-400 font-bold">
                     <i data-lucide="flame" class="w-3.5 h-3.5 text-amber-400"></i>
                     <span>Số Lần Xuất Hiện</span>
                     <span id="sort-icon-total_appearances" class="text-[10px]">▼</span>
                   </div>
                 </th>
-                <th class="py-4 px-4 w-28 cursor-pointer hover:text-white transition" onclick="toggleSort('current_stars')">
+
+                <!-- Cột Bền Bỉ (Persistence Score) -->
+                <th class="py-4 px-3 w-32 cursor-pointer hover:text-amber-300 transition text-center" onclick="toggleSort('persistence_score')">
+                  <div class="flex items-center justify-center gap-1 text-slate-300 font-bold hover:text-amber-300 transition">
+                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-amber-400"></i>
+                    <span>Bền Bỉ (P-Score)</span>
+                    <span id="sort-icon-persistence_score" class="text-[10px]"></span>
+                  </div>
+                </th>
+
+                <!-- Cột Tốc Độ (Velocity Score) -->
+                <th class="py-4 px-3 w-32 cursor-pointer hover:text-cyan-300 transition text-center" onclick="toggleSort('velocity_score')">
+                  <div class="flex items-center justify-center gap-1 text-slate-300 font-bold hover:text-cyan-300 transition">
+                    <i data-lucide="zap" class="w-3.5 h-3.5 text-cyan-400"></i>
+                    <span>Tốc Độ (V-Score)</span>
+                    <span id="sort-icon-velocity_score" class="text-[10px]"></span>
+                  </div>
+                </th>
+
+                <th class="py-4 px-3 w-28 cursor-pointer hover:text-white transition" onclick="toggleSort('current_stars')">
                   <div class="flex items-center gap-1">
                     <i data-lucide="star" class="w-3 h-3 text-yellow-400"></i>
                     <span>Tổng Stars</span>
                     <span id="sort-icon-current_stars" class="text-[10px]"></span>
                   </div>
                 </th>
-                <th class="py-4 px-4 w-24">Forks</th>
-                <th class="py-4 px-4 w-40">Tăng Kỳ Này</th>
-                <th class="py-4 px-4 w-28 cursor-pointer hover:text-white transition hidden md:table-cell" onclick="toggleSort('last_seen_at')">
+                <th class="py-4 px-3 w-20">Forks</th>
+                <th class="py-4 px-3 w-36">Tăng Kỳ Này</th>
+                <th class="py-4 px-3 w-28 cursor-pointer hover:text-white transition hidden md:table-cell" onclick="toggleSort('last_seen_at')">
                   <div class="flex items-center gap-1">
                     <span>Lần Cuối Thấy</span>
                     <span id="sort-icon-last_seen_at" class="text-[10px]"></span>
                   </div>
                 </th>
-                <th class="py-4 px-4 w-16 text-center">Chi Tiết</th>
+                <th class="py-4 px-3 w-16 text-center">Chi Tiết</th>
               </tr>
             </thead>
             <tbody id="repo-table-body" class="divide-y divide-white/[0.04]">
               <!-- Loading Skeleton / Content injected via JS -->
               <tr>
-                <td colspan="9" class="py-16 text-center text-slate-400">
+                <td colspan="11" class="py-16 text-center text-slate-400">
                   <div class="flex flex-col items-center justify-center space-y-3">
                     <div class="w-8 h-8 rounded-full border-2 border-emerald-500/30 border-t-emerald-400 animate-spin"></div>
                     <p class="text-xs font-light">Đang tải danh sách repositories...</p>
@@ -397,7 +445,92 @@
     </div>
   </main>
 
-  <!-- REPO HISTORY MODAL (Double-Bezel Glass Card) -->
+  <!-- AUTOMATED SCHEDULER MODAL -->
+  <div id="scheduler-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-xl flex items-center justify-center p-3 sm:p-6">
+    <div class="p-1 sm:p-1.5 rounded-3xl bg-white/[0.05] border border-white/[0.12] max-w-2xl w-full shadow-2xl relative">
+      <div class="p-5 sm:p-6 rounded-[calc(1.5rem-0.375rem)] bg-[#0c0e15] shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] space-y-5">
+        
+        <button onclick="closeSchedulerModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.1] border border-white/[0.08] transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+
+        <div class="space-y-1">
+          <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] text-emerald-400 font-semibold uppercase tracking-wider">
+            APScheduler Background Engine
+          </div>
+          <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <i data-lucide="clock" class="w-5 h-5 text-emerald-400"></i>
+            <span>Cấu Hình Cào Tự Động Đa Tầng</span>
+          </h2>
+          <p class="text-xs text-slate-400 font-light">Lịch trình tự động thu thập GitHub Trending và tái tính toán Persistence & Velocity scores.</p>
+        </div>
+
+        <!-- 3 Automated Schedules Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          
+          <!-- Daily Schedule -->
+          <div class="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.08] space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span>Theo Ngày (Daily)</span>
+              </span>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                3 lần / ngày
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-light">Chạy vào 07:00, 13:00 và 20:00 hàng ngày</p>
+            <div class="pt-1 border-t border-white/[0.06] text-[10px] text-slate-400">
+              Lần cào kế tiếp: <br><b class="text-emerald-400 font-mono" id="next-run-daily">Đang tải...</b>
+            </div>
+          </div>
+
+          <!-- Weekly Schedule -->
+          <div class="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.08] space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+                <span>Theo Tuần (Weekly)</span>
+              </span>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-300 border border-blue-500/30">
+                1 lần / ngày
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-light">Chạy vào 01:00 sáng mỗi ngày</p>
+            <div class="pt-1 border-t border-white/[0.06] text-[10px] text-slate-400">
+              Lần cào kế tiếp: <br><b class="text-blue-400 font-mono" id="next-run-weekly">Đang tải...</b>
+            </div>
+          </div>
+
+          <!-- Monthly Schedule -->
+          <div class="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.08] space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+                <span>Theo Tháng (Monthly)</span>
+              </span>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                2 lần / tuần
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-light">Chạy vào Thứ 2 & Thứ 5 lúc 02:00 sáng</p>
+            <div class="pt-1 border-t border-white/[0.06] text-[10px] text-slate-400">
+              Lần cào kế tiếp: <br><b class="text-purple-400 font-mono" id="next-run-monthly">Đang tải...</b>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="flex items-center justify-between pt-2 border-t border-white/[0.08]">
+          <span class="text-[11px] text-slate-400">Trạng thái: <b class="text-emerald-400 font-medium">● Đang hoạt động ngầm (Active)</b></span>
+          <button onclick="closeSchedulerModal()" class="px-5 py-2 rounded-full text-xs font-medium bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 border border-white/[0.08] transition">Đóng</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- REPO HISTORY & SCORE DETAIL MODAL -->
   <div id="repo-detail-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-xl flex items-center justify-center p-3 sm:p-6">
     <div class="p-1 sm:p-1.5 rounded-3xl bg-white/[0.05] border border-white/[0.12] max-w-2xl w-full shadow-2xl relative">
       <div class="p-5 sm:p-6 rounded-[calc(1.5rem-0.375rem)] bg-[#0c0e15] shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] space-y-5">
@@ -410,6 +543,11 @@
           <!-- Injected via JS -->
         </div>
 
+        <!-- Persistence & Velocity Scores Cards -->
+        <div id="modal-scores-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <!-- Injected via JS -->
+        </div>
+
         <div class="border-t border-white/[0.08] pt-4">
           <div class="flex items-center justify-between mb-3">
             <h3 class="text-xs sm:text-sm font-semibold text-white flex items-center gap-2">
@@ -419,12 +557,12 @@
             <span class="text-[11px] text-slate-400 font-light">Mỗi ngày được tính là 1 mốc xuất hiện</span>
           </div>
           
-          <div class="max-h-72 overflow-y-auto rounded-2xl border border-white/[0.08] bg-black/40 p-2">
+          <div class="max-h-60 overflow-y-auto rounded-2xl border border-white/[0.08] bg-black/40 p-2">
             <table class="w-full text-xs text-left">
               <thead>
                 <tr class="text-slate-400 border-b border-white/[0.06]">
                   <th class="p-2.5">Ngày cào</th>
-                  <th class="p-2.5">Mốc (Since)</th>
+                  <th class="p-2.5">Mốc</th>
                   <th class="p-2.5">Thứ Hạng</th>
                   <th class="p-2.5">Số Stars</th>
                   <th class="p-2.5">Tăng Thêm</th>
@@ -519,6 +657,7 @@
       loadStats();
       loadLanguages();
       loadRepositories();
+      loadSchedulerJobs();
 
       // Close dropdown when clicked outside
       document.addEventListener("click", (e) => {
@@ -565,7 +704,6 @@
         const data = await res.json();
         document.getElementById("stat-total-repos").textContent = data.total_repositories.toLocaleString();
         document.getElementById("stat-repeated-repos").textContent = data.repeated_repositories_count.toLocaleString();
-        document.getElementById("stat-total-sessions").textContent = data.total_crawl_sessions.toLocaleString();
 
         if (data.top_languages && data.top_languages.length > 0) {
           document.getElementById("stat-top-language").textContent = data.top_languages.map(l => `${l.language} (${l.count})`).slice(0, 2).join(", ");
@@ -596,12 +734,36 @@
       }
     }
 
+    async function loadSchedulerJobs() {
+      try {
+        const res = await fetch("/api/scheduler/jobs");
+        if (!res.ok) return;
+        const jobs = await res.json();
+
+        jobs.forEach(j => {
+          const formatted = j.next_run_time ? new Date(j.next_run_time).toLocaleString("vi-VN") : "Đang chờ chạy";
+          if (j.id === "job_crawl_daily") {
+            const el = document.getElementById("next-run-daily");
+            if (el) el.textContent = formatted;
+          } else if (j.id === "job_crawl_weekly") {
+            const el = document.getElementById("next-run-weekly");
+            if (el) el.textContent = formatted;
+          } else if (j.id === "job_crawl_monthly") {
+            const el = document.getElementById("next-run-monthly");
+            if (el) el.textContent = formatted;
+          }
+        });
+      } catch (e) {
+        console.error("Lỗi khi tải scheduler jobs:", e);
+      }
+    }
+
     async function loadRepositories() {
       state.isLoading = true;
       const tbody = document.getElementById("repo-table-body");
       tbody.innerHTML = `
         <tr>
-          <td colspan="9" class="py-16 text-center text-slate-400">
+          <td colspan="11" class="py-16 text-center text-slate-400">
             <div class="flex flex-col items-center justify-center space-y-3">
               <div class="w-7 h-7 rounded-full border-2 border-emerald-500/30 border-t-emerald-400 animate-spin"></div>
               <p class="text-xs font-light">Đang đồng bộ dữ liệu...</p>
@@ -635,7 +797,7 @@
       } catch (err) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="9" class="py-12 text-center text-rose-400">
+            <td colspan="11" class="py-12 text-center text-rose-400">
               <p>Có lỗi khi tải dữ liệu: ${err.message}</p>
             </td>
           </tr>
@@ -651,7 +813,7 @@
       if (!items || items.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="9" class="py-16 text-center text-slate-500">
+            <td colspan="11" class="py-16 text-center text-slate-500">
               <div class="flex flex-col items-center justify-center space-y-2">
                 <i data-lucide="inbox" class="w-8 h-8 text-slate-600"></i>
                 <p class="text-xs">Không có repository nào phù hợp với điều kiện tìm kiếm.</p>
@@ -665,7 +827,7 @@
       const rowsHtml = items.map((repo, idx) => {
         const rankNumber = (state.page - 1) * state.pageSize + idx + 1;
         
-        // Occurrence badge design with luminous ambient pill
+        // 1. Occurrence badge
         let occBadge = '';
         if (repo.total_appearances >= 3) {
           occBadge = `
@@ -689,7 +851,65 @@
           `;
         }
 
-        // Language indicator with authentic color dot
+        // 2. Persistence Score Badge
+        const pScore = repo.persistence_score ? Number(repo.persistence_score).toFixed(1) : '0.0';
+        let pBadge = '';
+        if (repo.persistence_level === 'legend' || repo.persistence_score >= 85) {
+          pBadge = `
+            <span class="inline-flex items-center whitespace-nowrap gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/40 shadow-[0_0_10px_rgba(245,158,11,0.2)]" title="🏆 Huyền thoại (${pScore}đ)">
+              <span>🏆</span><span>${pScore}</span>
+            </span>
+          `;
+        } else if (repo.persistence_level === 'high' || repo.persistence_score >= 65) {
+          pBadge = `
+            <span class="inline-flex items-center whitespace-nowrap gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-orange-500/15 text-orange-300 border border-orange-500/30" title="🔥 Bền bỉ (${pScore}đ)">
+              <span>🔥</span><span>${pScore}</span>
+            </span>
+          `;
+        } else if (repo.persistence_level === 'medium' || repo.persistence_score >= 35) {
+          pBadge = `
+            <span class="inline-flex items-center whitespace-nowrap gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-300 border border-emerald-500/30" title="⚡ Ổn định (${pScore}đ)">
+              <span>⚡</span><span>${pScore}</span>
+            </span>
+          `;
+        } else {
+          pBadge = `
+            <span class="inline-flex items-center whitespace-nowrap gap-1 px-2.5 py-0.5 rounded-full text-xs font-light text-slate-400 bg-white/[0.04] border border-white/[0.08]" title="🌱 Mới nổi (${pScore}đ)">
+              <span>🌱</span><span>${pScore}</span>
+            </span>
+          `;
+        }
+
+        // 3. Velocity Score Badge
+        const vScore = repo.velocity_score ? Number(repo.velocity_score).toFixed(1) : '0.0';
+        let vBadge = '';
+        if (repo.velocity_level === 'rocket' || repo.velocity_score >= 80) {
+          vBadge = `
+            <span class="inline-flex items-center whitespace-nowrap gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-fuchsia-500/15 text-fuchsia-300 border border-fuchsia-500/40 shadow-[0_0_10px_rgba(217,70,239,0.2)]" title="🚀 Tên lửa (${vScore}đ)">
+              <span>🚀</span><span>${vScore}</span>
+            </span>
+          `;
+        } else if (repo.velocity_level === 'surging' || repo.velocity_score >= 60) {
+          vBadge = `
+            <span class="inline-flex items-center whitespace-nowrap gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 shadow-[0_0_10px_rgba(6,182,212,0.15)]" title="⚡ Bứt phá (${vScore}đ)">
+              <span>⚡</span><span>${vScore}</span>
+            </span>
+          `;
+        } else if (repo.velocity_level === 'steady' || repo.velocity_score >= 30) {
+          vBadge = `
+            <span class="inline-flex items-center whitespace-nowrap gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-500/15 text-blue-300 border border-blue-500/30" title="📈 Tăng đều (${vScore}đ)">
+              <span>📈</span><span>${vScore}</span>
+            </span>
+          `;
+        } else {
+          vBadge = `
+            <span class="inline-flex items-center whitespace-nowrap gap-1 px-2.5 py-0.5 rounded-full text-xs font-light text-slate-400 bg-white/[0.04] border border-white/[0.08]" title="🐌 Chậm (${vScore}đ)">
+              <span>🐌</span><span>${vScore}</span>
+            </span>
+          `;
+        }
+
+        // Language indicator
         const langColor = repo.language_color || '#8b949e';
         const langHtml = repo.language ? `
           <div class="inline-flex items-center gap-1.5 text-slate-200 text-xs whitespace-nowrap">
@@ -701,16 +921,12 @@
         // Stars & Forks
         const starsFormatted = repo.current_stars ? repo.current_stars.toLocaleString() : "0";
         const forksFormatted = repo.current_forks ? repo.current_forks.toLocaleString() : "0";
-
-        // Period stars pill
         const periodStars = repo.latest_period_stars || "—";
-
-        // Last seen
         const lastSeen = repo.last_seen_at ? new Date(repo.last_seen_at).toLocaleDateString("vi-VN") : "—";
 
         return `
           <tr class="hover:bg-white/[0.025] transition-colors duration-200 group">
-            <td class="py-3.5 px-4 text-center font-mono text-slate-500 text-xs whitespace-nowrap">${rankNumber}</td>
+            <td class="py-3.5 px-3 text-center font-mono text-slate-500 text-xs whitespace-nowrap">${rankNumber}</td>
             <td class="py-3.5 px-4 min-w-[240px] max-w-sm">
               <div class="space-y-1">
                 <a href="${repo.url}" target="_blank" class="font-semibold text-slate-100 hover:text-emerald-400 inline-flex items-center gap-1.5 transition group">
@@ -721,8 +937,8 @@
                 <p class="text-[11px] text-slate-400 line-clamp-1 font-light max-w-xs sm:max-w-md">${repo.description || 'Không có mô tả'}</p>
               </div>
             </td>
-            <td class="py-3.5 px-4 whitespace-nowrap">${langHtml}</td>
-            <td class="py-3.5 px-4 text-center whitespace-nowrap">
+            <td class="py-3.5 px-3 whitespace-nowrap">${langHtml}</td>
+            <td class="py-3.5 px-3 text-center whitespace-nowrap">
               ${occBadge}
               <div class="text-[10px] text-slate-500 font-mono mt-1 flex items-center justify-center gap-1.5">
                 <span title="Số lần daily">D:${repo.daily_appearances}</span>
@@ -732,31 +948,37 @@
                 <span title="Số lần monthly">M:${repo.monthly_appearances}</span>
               </div>
             </td>
-            <td class="py-3.5 px-4 font-medium text-slate-200 whitespace-nowrap">
+            <td class="py-3.5 px-3 text-center whitespace-nowrap">
+              ${pBadge}
+            </td>
+            <td class="py-3.5 px-3 text-center whitespace-nowrap">
+              ${vBadge}
+            </td>
+            <td class="py-3.5 px-3 font-medium text-slate-200 whitespace-nowrap">
               <div class="inline-flex items-center gap-1.5">
                 <i data-lucide="star" class="w-3.5 h-3.5 text-yellow-400 fill-yellow-400"></i>
                 <span>${starsFormatted}</span>
               </div>
             </td>
-            <td class="py-3.5 px-4 text-slate-400 whitespace-nowrap">
+            <td class="py-3.5 px-3 text-slate-400 whitespace-nowrap">
               <div class="inline-flex items-center gap-1.5">
                 <i data-lucide="git-fork" class="w-3.5 h-3.5 text-slate-400"></i>
                 <span>${forksFormatted}</span>
               </div>
             </td>
-            <td class="py-3.5 px-4 whitespace-nowrap">
+            <td class="py-3.5 px-3 whitespace-nowrap">
               <span class="inline-flex items-center whitespace-nowrap text-emerald-400 text-[11px] font-medium bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20 shadow-[0_0_8px_rgba(16,185,129,0.08)]">
                 ${periodStars}
               </span>
             </td>
-            <td class="py-3.5 px-4 text-slate-400 text-xs whitespace-nowrap hidden md:table-cell">
+            <td class="py-3.5 px-3 text-slate-400 text-xs whitespace-nowrap hidden md:table-cell">
               ${lastSeen}
             </td>
-            <td class="py-3.5 px-4 text-center whitespace-nowrap">
+            <td class="py-3.5 px-3 text-center whitespace-nowrap">
               <button 
                 onclick="openDetailModal(${repo.id})" 
                 class="p-1.5 text-slate-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.1] rounded-full border border-white/[0.08] transition" 
-                title="Xem chi tiết lịch sử"
+                title="Xem chi tiết lịch sử & điểm"
               >
                 <i data-lucide="info" class="w-3.5 h-3.5"></i>
               </button>
@@ -819,6 +1041,14 @@
       loadRepositories();
     }
 
+    function handleSortSelectChange() {
+      state.sortBy = document.getElementById("sort-select").value;
+      state.sortDir = "desc";
+      updateSortHeaderIcons();
+      state.page = 1;
+      loadRepositories();
+    }
+
     function toggleSort(col) {
       if (state.sortBy === col) {
         state.sortDir = state.sortDir === "asc" ? "desc" : "asc";
@@ -827,7 +1057,18 @@
         state.sortDir = "desc";
       }
 
-      ["total_appearances", "current_stars", "last_seen_at"].forEach(c => {
+      // Sync with select dropdown if exists
+      const sortSelect = document.getElementById("sort-select");
+      if (sortSelect) {
+        sortSelect.value = col;
+      }
+
+      updateSortHeaderIcons();
+      loadRepositories();
+    }
+
+    function updateSortHeaderIcons() {
+      ["total_appearances", "persistence_score", "velocity_score", "current_stars", "last_seen_at"].forEach(c => {
         const el = document.getElementById(`sort-icon-${c}`);
         if (el) {
           if (state.sortBy === c) {
@@ -837,8 +1078,6 @@
           }
         }
       });
-
-      loadRepositories();
     }
 
     async function triggerCrawl(since = "daily", forceIncrement = false) {
@@ -862,10 +1101,27 @@
         await loadStats();
         await loadLanguages();
         await loadRepositories();
+        await loadSchedulerJobs();
       } catch (err) {
         showToast(`Lỗi: ${err.message}`, "error");
       } finally {
         icon.classList.remove("animate-spin");
+      }
+    }
+
+    async function recalculateScores() {
+      document.getElementById("crawl-dropdown").classList.add("hidden");
+      showToast("Đang tính toán lại Persistence & Velocity Scores cho toàn bộ repos...", "success");
+
+      try {
+        const res = await fetch("/api/scores/recalculate", { method: "POST" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Lỗi tính điểm");
+
+        showToast(`Thành công! ${data.message}`, "success");
+        await loadRepositories();
+      } catch (err) {
+        showToast(`Lỗi: ${err.message}`, "error");
       }
     }
 
@@ -879,7 +1135,7 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.detail || "Lỗi nạp demo");
 
-        showToast("Đã nạp thành công mô phỏng 3 ngày! Các repo đã tăng số lần xuất hiện lên 1, 2, 3 lần.", "success");
+        showToast("Đã nạp thành công mô phỏng 3 ngày! Các repo đã được tính điểm Persistence & Velocity.", "success");
         await loadStats();
         await loadLanguages();
         await loadRepositories();
@@ -898,12 +1154,25 @@
       }
     }
 
+    function openSchedulerModal() {
+      const modal = document.getElementById("scheduler-modal");
+      modal.classList.remove("hidden");
+      loadSchedulerJobs();
+      lucide.createIcons();
+    }
+
+    function closeSchedulerModal() {
+      document.getElementById("scheduler-modal").classList.add("hidden");
+    }
+
     async function openDetailModal(repoId) {
       const modal = document.getElementById("repo-detail-modal");
       const header = document.getElementById("modal-repo-header");
+      const scoresContainer = document.getElementById("modal-scores-container");
       const body = document.getElementById("modal-snapshot-body");
 
       header.innerHTML = `<p class="text-xs text-slate-400">Đang tải...</p>`;
+      scoresContainer.innerHTML = '';
       body.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-slate-500">Đang tải dữ liệu...</td></tr>`;
       modal.classList.remove("hidden");
       lucide.createIcons();
@@ -914,6 +1183,12 @@
         const data = await res.json();
         const repo = data.repository;
         const snapshots = data.snapshots;
+
+        const pScore = repo.persistence_score ? Number(repo.persistence_score).toFixed(1) : '0.0';
+        const vScore = repo.velocity_score ? Number(repo.velocity_score).toFixed(1) : '0.0';
+
+        const pLabels = { legend: '🏆 Huyền Thoại (Legend)', high: '🔥 Bền Bỉ (High)', medium: '⚡ Ổn Định (Medium)', new: '🌱 Mới Nổi (New)' };
+        const vLabels = { rocket: '🚀 Tên Lửa (Rocket)', surging: '⚡ Bứt Phá (Surging)', steady: '📈 Tăng Đều (Steady)', slow: '🐌 Chậm (Slow)' };
 
         header.innerHTML = `
           <div class="flex items-center justify-between gap-3">
@@ -930,6 +1205,36 @@
             <span>⭐ <b class="text-white">${repo.current_stars.toLocaleString()}</b> stars</span>
             <span>🍴 <b class="text-white">${repo.current_forks.toLocaleString()}</b> forks</span>
             <span>Ngôn ngữ: <b class="text-slate-100">${repo.language || 'Chưa rõ'}</b></span>
+          </div>
+        `;
+
+        scoresContainer.innerHTML = `
+          <div class="p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] uppercase tracking-wider text-slate-400 font-medium flex items-center gap-1.5">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span>Persistence Score</span>
+              </span>
+              <span class="text-xs font-bold text-amber-400 font-mono">${pScore}/100</span>
+            </div>
+            <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+              <div class="bg-gradient-to-r from-amber-500 to-orange-400 h-full rounded-full" style="width: ${pScore}%"></div>
+            </div>
+            <p class="text-[11px] text-slate-400 font-light">Danh hiệu: <b class="text-amber-300 font-medium">${pLabels[repo.persistence_level] || repo.persistence_level}</b></p>
+          </div>
+
+          <div class="p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] uppercase tracking-wider text-slate-400 font-medium flex items-center gap-1.5">
+                <i data-lucide="zap" class="w-3.5 h-3.5 text-cyan-400"></i>
+                <span>Velocity Score</span>
+              </span>
+              <span class="text-xs font-bold text-cyan-400 font-mono">${vScore}/100</span>
+            </div>
+            <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+              <div class="bg-gradient-to-r from-cyan-500 to-fuchsia-500 h-full rounded-full" style="width: ${vScore}%"></div>
+            </div>
+            <p class="text-[11px] text-slate-400 font-light">Tốc độ: <b class="text-cyan-300 font-medium">${vLabels[repo.velocity_level] || repo.velocity_level}</b></p>
           </div>
         `;
 

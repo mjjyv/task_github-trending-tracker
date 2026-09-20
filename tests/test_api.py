@@ -87,3 +87,25 @@ def test_seed_demo_and_query_repositories():
     history_resp = client.get(f"/api/repositories/{repo_id}/history")
     assert history_resp.status_code == 200
     assert len(history_resp.json()) == 3
+
+    # 6. Test persistence & velocity scores presence and sorting
+    assert "persistence_score" in first_item
+    assert "velocity_score" in first_item
+    assert first_item["persistence_score"] > 0
+    assert first_item["velocity_score"] > 0
+
+    sort_p_resp = client.get("/api/repositories?sort_by=persistence_score&sort_dir=desc")
+    assert sort_p_resp.status_code == 200
+    p_items = sort_p_resp.json()["items"]
+    assert p_items[0]["persistence_score"] >= p_items[-1]["persistence_score"]
+
+    # 7. Test recalculate endpoint
+    recalc_resp = client.post("/api/scores/recalculate")
+    assert recalc_resp.status_code == 200
+    assert recalc_resp.json()["count"] > 0
+
+    # 8. Test scheduler jobs endpoint
+    jobs_resp = client.get("/api/scheduler/jobs")
+    assert jobs_resp.status_code == 200
+    assert isinstance(jobs_resp.json(), list)
+

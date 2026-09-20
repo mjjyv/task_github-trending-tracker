@@ -34,6 +34,10 @@ class RepositoryOut(BaseModel):
     daily_appearances: int
     weekly_appearances: int
     monthly_appearances: int
+    persistence_score: float = 0.0
+    velocity_score: float = 0.0
+    persistence_level: str = "new"
+    velocity_level: str = "slow"
     current_stars: int
     current_forks: int
     latest_period_stars: Optional[str] = None
@@ -80,3 +84,14 @@ class StatsSummary(BaseModel):
     repeated_repositories_count: int  # số repo xuất hiện > 1 lần
     top_languages: List[dict]
     top_recurring_repos: List[RepositoryOut]
+
+
+class SchedulerJobOut(BaseModel):
+    id: str
+    name: str
+    since: str
+    frequency_label: str
+    cron_desc: str
+    next_run_time: Optional[str] = None
+    is_running: bool
+

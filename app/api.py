@@ -8,6 +8,8 @@ from sqlalchemy import desc, asc, func, or_
 from app.database import get_db
 from app.models import Repository, CrawlSession, RepoSnapshot
 from app.crawler import GitHubTrendingCrawler
+from app.scoring import recalculate_all_scores
+from app.scheduler import get_scheduled_jobs_info
 from app.schemas import (
     RepositoryOut,
     PaginatedRepositories,
@@ -16,6 +18,7 @@ from app.schemas import (
     CrawlTriggerResponse,
     StatsSummary,
     RepoSnapshotOut,
+    SchedulerJobOut,
 )
 
 router = APIRouter(prefix="/api")
@@ -30,6 +33,8 @@ def get_repositories(
     language: Optional[str] = Query(None, description="Lọc theo ngôn ngữ lập trình"),
     since: Optional[str] = Query(None, description="Lọc theo thời gian: daily, weekly, monthly"),
     min_appearances: Optional[int] = Query(None, ge=1, description="Số lần xuất hiện tối thiểu"),
+    min_persistence: Optional[float] = Query(None, ge=0, le=100, description="Điểm bền bỉ tối thiểu"),
+    min_velocity: Optional[float] = Query(None, ge=0, le=100, description="Điểm tốc độ tối thiểu"),
     sort_by: str = Query("total_appearances", description="Cột cần sắp xếp"),
     sort_dir: str = Query("desc", pattern="^(asc|desc)$"),
     db: Session = Depends(get_db),
@@ -63,12 +68,20 @@ def get_repositories(
     if min_appearances:
         query = query.filter(Repository.total_appearances >= min_appearances)
 
-    # 5. Sắp xếp
+    # 5. Lọc theo điểm số
+    if min_persistence is not None:
+        query = query.filter(Repository.persistence_score >= min_persistence)
+    if min_velocity is not None:
+        query = query.filter(Repository.velocity_score >= min_velocity)
+
+    # 6. Sắp xếp
     sort_column_map = {
         "total_appearances": Repository.total_appearances,
         "daily_appearances": Repository.daily_appearances,
         "weekly_appearances": Repository.weekly_appearances,
         "monthly_appearances": Repository.monthly_appearances,
+        "persistence_score": Repository.persistence_score,
+        "velocity_score": Repository.velocity_score,
         "current_stars": Repository.current_stars,
         "current_forks": Repository.current_forks,
         "latest_rank": Repository.latest_rank,
@@ -263,7 +276,27 @@ def seed_demo_data(db: Session = Depends(get_db)):
         is_manual=True,
     )
 
+    # Tính toán lại toàn bộ Persistence & Velocity Score cho dữ liệu demo
+    recalculate_all_scores(db)
+
     return {
-        "message": "Đã tạo thành công dữ liệu demo mô phỏng 3 ngày cào dữ liệu!",
+        "message": "Đã tạo thành công dữ liệu demo mô phỏng 3 ngày cào dữ liệu kèm Persistence & Velocity scores!",
         "days": [day1.isoformat(), day2.isoformat(), day3.isoformat()],
     }
+
+
+@router.post("/scores/recalculate")
+def recalculate_scores(db: Session = Depends(get_db)):
+    """Tính toán lại Persistence Score và Velocity Score cho toàn bộ repository."""
+    updated = recalculate_all_scores(db)
+    return {
+        "message": f"Đã tính toán lại điểm số cho {updated} repositories thành công!",
+        "count": updated,
+    }
+
+
+@router.get("/scheduler/jobs", response_model=List[SchedulerJobOut])
+def get_scheduler_jobs():
+    """Lấy danh sách các lịch trình cào tự động và thời gian chạy tiếp theo."""
+    return get_scheduled_jobs_info()
+

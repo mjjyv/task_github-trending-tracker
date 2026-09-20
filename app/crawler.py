@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.config import GITHUB_TRENDING_URL, DEFAULT_HEADERS
 from app.parser import parse_github_trending_html
 from app.models import Repository, CrawlSession, RepoSnapshot
+from app.scoring import update_repo_scores
 
 logger = logging.getLogger(__name__)
 
@@ -152,6 +153,16 @@ class GitHubTrendingCrawler:
                     crawled_at=now_utc,
                 )
                 db.add(snapshot)
+                db.flush()
+
+                # Cập nhật ngay Persistence Score và Velocity Score cho repository
+                repo_snaps = (
+                    db.query(RepoSnapshot)
+                    .filter(RepoSnapshot.repo_id == repo.id)
+                    .order_by(RepoSnapshot.crawled_at.asc())
+                    .all()
+                )
+                update_repo_scores(repo, repo_snaps)
 
             session.status = "success"
             session.items_count = len(parsed_repos)
