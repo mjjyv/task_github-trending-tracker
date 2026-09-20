@@ -134,7 +134,7 @@ def get_repositories(
 
         # Gán thuộc tính động
         r.window_appearances = metrics["window_appearances"] if is_windowed else r.total_appearances
-        r.window_stars_gained = metrics["window_stars_gained"] if is_windowed else r.current_stars
+        r.window_stars_gained = metrics["window_stars_gained"]
         r.window_persistence_score = metrics["window_persistence_score"] if is_windowed else r.persistence_score
         r.window_velocity_score = metrics["window_velocity_score"] if is_windowed else r.velocity_score
         r.window_trending_score = metrics["window_trending_score"] if is_windowed else round(
