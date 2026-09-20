@@ -110,6 +110,32 @@
               </div>
             </button>
 
+            <!-- Nạp Demo 12 Tháng Button (Mô phỏng đa kỳ) -->
+            <button 
+              id="btn-seed-timeline" 
+              onclick="seedTimelineDemo()" 
+              title="Nạp dữ liệu 12-18 tháng đa kỳ (Repo bùng nổ, Di sản hạ nhiệt, Trụ cột, Hồi sinh)" 
+              class="group relative inline-flex items-center gap-2 pl-3.5 pr-2 py-1.5 rounded-full text-xs font-medium text-cyan-300 hover:text-white bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/25 transition-all duration-300 active:scale-[0.97] ease-haptic"
+            >
+              <span class="hidden sm:inline">Demo 12 Tháng</span>
+              <span class="sm:hidden">12T</span>
+              <div class="w-6 h-6 rounded-full bg-cyan-500/20 border border-cyan-500/35 flex items-center justify-center group-hover:scale-105 transition duration-300">
+                <i data-lucide="line-chart" class="w-3 h-3 text-cyan-400"></i>
+              </div>
+            </button>
+
+            <!-- Ý Nghĩa Chỉ Số Button -->
+            <button 
+              onclick="openGuideModal()" 
+              title="Xem giải nghĩa Persistence, Velocity, bài toán repo cũ và 6 giai đoạn vòng đời" 
+              class="hidden lg:inline-flex items-center gap-2 pl-3.5 pr-2 py-1.5 rounded-full text-xs font-medium text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] transition-all duration-300 active:scale-[0.97] ease-haptic"
+            >
+              <span>Ý Nghĩa Chỉ Số</span>
+              <div class="w-6 h-6 rounded-full bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center">
+                <i data-lucide="book-open" class="w-3 h-3 text-indigo-400"></i>
+              </div>
+            </button>
+
             <!-- Lịch Cào Tự Động Button -->
             <button 
               onclick="openSchedulerModal()" 
@@ -286,7 +312,43 @@
     </div>
 
     <!-- FILTER & SEARCH CONTROLS (Double-Bezel) -->
-    <div class="p-1 sm:p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06] shadow-xl">
+    <div class="p-1 sm:p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06] shadow-xl space-y-2">
+      
+      <!-- Time Window Segmented Bar (Double-Bezel Inner Core) -->
+      <div class="p-3 sm:p-3.5 rounded-[calc(1.5rem-0.375rem)] bg-[#0a0d16]/95 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] border border-white/[0.05]">
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-200 pr-1">
+            <i data-lucide="calendar" class="w-4 h-4 text-cyan-400"></i>
+            <span>Khung Thời Gian:</span>
+          </div>
+
+          <!-- Time Window Preset Buttons -->
+          <div class="flex items-center overflow-x-auto p-0.5 rounded-full bg-black/40 border border-white/[0.08] text-xs font-medium no-scrollbar gap-0.5" id="time-window-pills">
+            <button onclick="setTimeWindow('all')" id="win-all" class="px-3 py-1 rounded-full bg-cyan-600 text-white shadow-sm transition whitespace-nowrap">Toàn Bộ (All-time)</button>
+            <button onclick="setTimeWindow('7d')" id="win-7d" class="px-3 py-1 rounded-full text-slate-400 hover:text-white transition whitespace-nowrap">7 Ngày</button>
+            <button onclick="setTimeWindow('30d')" id="win-30d" class="px-3 py-1 rounded-full text-slate-400 hover:text-white transition whitespace-nowrap">30 Ngày</button>
+            <button onclick="setTimeWindow('90d')" id="win-90d" class="px-3 py-1 rounded-full text-slate-400 hover:text-white transition whitespace-nowrap">3 Tháng</button>
+            <button onclick="setTimeWindow('180d')" id="win-180d" class="px-3 py-1 rounded-full text-slate-400 hover:text-white transition whitespace-nowrap flex items-center gap-1.5">
+              <span>6 Tháng Gần Đây</span>
+              <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+            </button>
+            <button onclick="setTimeWindow('365d')" id="win-365d" class="px-3 py-1 rounded-full text-slate-400 hover:text-white transition whitespace-nowrap">1 Năm</button>
+          </div>
+        </div>
+
+        <!-- Window Status & Inactive Filter Toggle -->
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-xs">
+          <span id="window-status-pill" class="text-[11px] text-cyan-300 font-medium px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 truncate max-w-xs">
+            Toàn bộ thời gian (All-time)
+          </span>
+          <label class="flex items-center gap-1.5 cursor-pointer text-slate-400 hover:text-slate-200 select-none bg-white/[0.02] hover:bg-white/[0.05] px-2.5 py-1 rounded-full border border-white/[0.06] transition" title="Ẩn các repo không có lần xuất hiện nào trong khung thời gian đã chọn">
+            <input type="checkbox" id="hide-inactive-check" onchange="toggleHideInactive()" class="w-3.5 h-3.5 rounded bg-slate-800 border-white/[0.15] text-cyan-500 focus:ring-0">
+            <span class="text-[11px]">Chỉ hiện repo có trending trong kỳ</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Main Search & Sub-Filters -->
       <div class="p-3 sm:p-4 rounded-[calc(1.5rem-0.375rem)] bg-[#0a0c13]/90 flex flex-col lg:flex-row lg:items-center justify-between gap-3 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
         
         <!-- Search bar -->
@@ -296,14 +358,14 @@
             type="text"
             id="search-input"
             placeholder="Tìm theo tên repo, tác giả hoặc mô tả..."
-            class="w-full pl-10 pr-4 py-2 bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.15] focus:border-emerald-500/60 rounded-full text-xs text-slate-200 placeholder-slate-400 focus:outline-none transition-all duration-200"
+            class="w-full pl-10 pr-4 py-2 bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.15] focus:border-cyan-500/60 rounded-full text-xs text-slate-200 placeholder-slate-400 focus:outline-none transition-all duration-200"
             oninput="handleSearchInput()"
           >
         </div>
 
-        <!-- Filter Timeframe Pill Buttons -->
+        <!-- Filter Timeframe Pill Buttons (Daily/Weekly/Monthly) -->
         <div class="flex items-center overflow-x-auto p-1 rounded-full bg-white/[0.02] border border-white/[0.06] text-xs font-medium no-scrollbar">
-          <button onclick="setTimeframeFilter('all')" id="tab-all" class="px-3.5 py-1.5 rounded-full bg-emerald-600 text-white shadow-sm transition-all duration-300 ease-haptic whitespace-nowrap">Tất Cả</button>
+          <button onclick="setTimeframeFilter('all')" id="tab-all" class="px-3.5 py-1.5 rounded-full bg-emerald-600 text-white shadow-sm transition-all duration-300 ease-haptic whitespace-nowrap">Tất Cả Mốc</button>
           <button onclick="setTimeframeFilter('daily')" id="tab-daily" class="px-3.5 py-1.5 rounded-full text-slate-400 hover:text-white transition-all duration-300 whitespace-nowrap">⚡ Daily</button>
           <button onclick="setTimeframeFilter('weekly')" id="tab-weekly" class="px-3.5 py-1.5 rounded-full text-slate-400 hover:text-white transition-all duration-300 whitespace-nowrap">📅 Weekly</button>
           <button onclick="setTimeframeFilter('monthly')" id="tab-monthly" class="px-3.5 py-1.5 rounded-full text-slate-400 hover:text-white transition-all duration-300 whitespace-nowrap">🌟 Monthly</button>
@@ -312,16 +374,18 @@
         <!-- Language, Score Sort & Repeat Filters -->
         <div class="flex flex-wrap items-center gap-2">
           <!-- Sort Dropdown -->
-          <select id="sort-select" onchange="handleSortSelectChange()" class="bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.15] rounded-full text-xs text-slate-200 py-2 px-3 focus:outline-none focus:border-emerald-500/60 transition">
-            <option value="total_appearances" class="bg-slate-900 text-slate-200">Xếp theo: Số lần xuất hiện</option>
+          <select id="sort-select" onchange="handleSortSelectChange()" class="bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.15] rounded-full text-xs text-slate-200 py-2 px-3 focus:outline-none focus:border-cyan-500/60 transition">
+            <option value="total_appearances" class="bg-slate-900 text-slate-200">Xếp theo: Số lần trending</option>
+            <option value="window_trending_score" class="bg-slate-900 text-slate-200">Xếp theo: Điểm Trending Kỳ</option>
             <option value="persistence_score" class="bg-slate-900 text-slate-200">Xếp theo: Điểm Bền Bỉ (P-Score)</option>
             <option value="velocity_score" class="bg-slate-900 text-slate-200">Xếp theo: Điểm Tốc Độ (V-Score)</option>
+            <option value="window_stars_gained" class="bg-slate-900 text-slate-200">Xếp theo: Stars tăng trong kỳ</option>
             <option value="current_stars" class="bg-slate-900 text-slate-200">Xếp theo: Tổng Stars</option>
             <option value="last_seen_at" class="bg-slate-900 text-slate-200">Xếp theo: Lần cuối thấy</option>
           </select>
 
           <!-- Language select -->
-          <select id="lang-select" onchange="handleFilterChange()" class="bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.15] rounded-full text-xs text-slate-200 py-2 px-3 focus:outline-none focus:border-emerald-500/60 transition">
+          <select id="lang-select" onchange="handleFilterChange()" class="bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.15] rounded-full text-xs text-slate-200 py-2 px-3 focus:outline-none focus:border-cyan-500/60 transition">
             <option value="all" class="bg-slate-900 text-slate-200">Tất cả ngôn ngữ</option>
           </select>
 
@@ -356,12 +420,21 @@
                 </th>
                 <th class="py-4 px-3 w-28">Ngôn Ngữ</th>
                 
-                <!-- Cột Số Lần Xuất Hiện -->
+                <!-- Cột Số Lần Xuất Hiện / Trending Kỳ -->
                 <th class="py-4 px-3 w-36 cursor-pointer hover:text-amber-300 transition text-center" onclick="toggleSort('total_appearances')">
                   <div class="flex items-center justify-center gap-1 text-amber-400 font-bold">
                     <i data-lucide="flame" class="w-3.5 h-3.5 text-amber-400"></i>
-                    <span>Số Lần Xuất Hiện</span>
+                    <span id="col-appearances-header">Số Lần Trending</span>
                     <span id="sort-icon-total_appearances" class="text-[10px]">▼</span>
+                  </div>
+                </th>
+
+                <!-- Cột Vòng Đời & Trending Score trong kỳ -->
+                <th class="py-4 px-3 w-40 cursor-pointer hover:text-cyan-300 transition text-center" onclick="toggleSort('window_trending_score')">
+                  <div class="flex items-center justify-center gap-1 text-cyan-400 font-bold">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-cyan-400"></i>
+                    <span>Vòng Đời / Trend Kỳ</span>
+                    <span id="sort-icon-window_trending_score" class="text-[10px]"></span>
                   </div>
                 </th>
 
@@ -383,22 +456,22 @@
                   </div>
                 </th>
 
-                <th class="py-4 px-3 w-28 cursor-pointer hover:text-white transition" onclick="toggleSort('current_stars')">
+                <th class="py-4 px-3 w-32 cursor-pointer hover:text-white transition" onclick="toggleSort('current_stars')">
                   <div class="flex items-center gap-1">
                     <i data-lucide="star" class="w-3 h-3 text-yellow-400"></i>
-                    <span>Tổng Stars</span>
+                    <span id="col-stars-header">Stars (Kỳ / Tổng)</span>
                     <span id="sort-icon-current_stars" class="text-[10px]"></span>
                   </div>
                 </th>
                 <th class="py-4 px-3 w-20">Forks</th>
-                <th class="py-4 px-3 w-36">Tăng Kỳ Này</th>
-                <th class="py-4 px-3 w-28 cursor-pointer hover:text-white transition hidden md:table-cell" onclick="toggleSort('last_seen_at')">
+                <th class="py-4 px-3 w-32">Tăng Kỳ Này</th>
+                <th class="py-4 px-3 w-28 cursor-pointer hover:text-white transition hidden lg:table-cell" onclick="toggleSort('last_seen_at')">
                   <div class="flex items-center gap-1">
                     <span>Lần Cuối Thấy</span>
                     <span id="sort-icon-last_seen_at" class="text-[10px]"></span>
                   </div>
                 </th>
-                <th class="py-4 px-3 w-16 text-center">Chi Tiết</th>
+                <th class="py-4 px-3 w-24 text-center">Thao Tác</th>
               </tr>
             </thead>
             <tbody id="repo-table-body" class="divide-y divide-white/[0.04]">
@@ -626,7 +699,207 @@
     </div>
   </div>
 
-  <!-- TOAST NOTIFICATION (Glass Pill) -->
+  <!-- TIME-TRAVEL & PERIOD COMPARISON MODAL (Double-Bezel Architecture) -->
+  <div id="compare-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-6">
+    <div class="p-1 sm:p-1.5 rounded-3xl bg-white/[0.05] border border-white/[0.12] max-w-3xl w-full shadow-2xl relative my-auto">
+      <div class="p-5 sm:p-6 rounded-[calc(1.5rem-0.375rem)] bg-[#0c0e15] shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] space-y-5">
+        
+        <button onclick="closeCompareModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.1] border border-white/[0.08] transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+
+        <!-- Modal Header -->
+        <div id="compare-repo-header" class="space-y-1 pr-8">
+          <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-[10px] text-cyan-400 font-semibold uppercase tracking-wider">
+            Time-Travel & Period Comparison Engine
+          </div>
+          <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2" id="compare-repo-title">
+            <i data-lucide="line-chart" class="w-5 h-5 text-cyan-400"></i>
+            <span>So Sánh Trạng Thái & Vòng Đời Repository</span>
+          </h2>
+          <p class="text-xs text-slate-400 font-light" id="compare-repo-desc">
+            Đối chiếu số liệu giữa 2 khoảng thời gian và phân tích ý nghĩa biến động.
+          </p>
+        </div>
+
+        <!-- Preset Period Selectors -->
+        <div class="flex items-center gap-1.5 overflow-x-auto p-1 rounded-full bg-black/40 border border-white/[0.08] text-xs no-scrollbar" id="compare-presets-bar">
+          <button onclick="changeComparePreset('6m_vs_prior_6m')" id="cp-preset-6m_prior" class="px-3.5 py-1 rounded-full bg-cyan-600 text-white font-medium shadow-sm transition whitespace-nowrap">
+            6 Tháng Gần Đây vs 6 Tháng Trước
+          </button>
+          <button onclick="changeComparePreset('6m_vs_same_last_year')" id="cp-preset-6m_year" class="px-3.5 py-1 rounded-full text-slate-400 hover:text-white font-medium transition whitespace-nowrap">
+            6 Tháng Gần Đây vs Cùng Kỳ Năm Ngoái
+          </button>
+          <button onclick="changeComparePreset('30d_vs_prior_30d')" id="cp-preset-30d_prior" class="px-3.5 py-1 rounded-full text-slate-400 hover:text-white font-medium transition whitespace-nowrap">
+            30 Ngày Gần Đây vs 30 Ngày Trước
+          </button>
+        </div>
+
+        <!-- AI-Style Lifecycle Trajectory Card -->
+        <div id="compare-trajectory-container" class="space-y-3">
+          <!-- Injected via JS -->
+        </div>
+
+        <!-- Side-by-Side Comparison Table -->
+        <div class="rounded-2xl border border-white/[0.08] bg-black/40 overflow-hidden">
+          <div class="px-4 py-2.5 bg-white/[0.02] border-b border-white/[0.06] flex items-center justify-between text-xs font-semibold text-slate-300">
+            <span>Bảng Đối Chiếu Chỉ Số Chi Tiết</span>
+            <span class="text-[11px] text-cyan-400 font-mono">Period-over-Period Delta</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left">
+              <thead>
+                <tr class="text-slate-400 border-b border-white/[0.06] bg-white/[0.01]">
+                  <th class="p-3">Chỉ Số Phân Tích</th>
+                  <th class="p-3 font-semibold text-cyan-300" id="compare-col-p1">Kỳ Gần Đây</th>
+                  <th class="p-3 font-semibold text-slate-300" id="compare-col-p2">Kỳ Trước Đó</th>
+                  <th class="p-3 text-right">Biến Động (Δ / %)</th>
+                </tr>
+              </thead>
+              <tbody id="compare-table-body" class="divide-y divide-white/[0.04] text-slate-300">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-2 border-t border-white/[0.08]">
+          <span class="text-[11px] text-slate-400">💡 Bấm nút <b>Cẩm Nang Chỉ Số</b> để xem lý thuyết chi tiết về các thang điểm.</span>
+          <button onclick="closeCompareModal()" class="px-5 py-2 rounded-full text-xs font-medium bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 border border-white/[0.08] transition">Đóng</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- METRIC GUIDE & LIFECYCLE INTERPRETATION MODAL -->
+  <div id="guide-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-6">
+    <div class="p-1 sm:p-1.5 rounded-3xl bg-white/[0.05] border border-white/[0.12] max-w-3xl w-full shadow-2xl relative my-auto">
+      <div class="p-5 sm:p-6 rounded-[calc(1.5rem-0.375rem)] bg-[#0c0e15] shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] space-y-5">
+        
+        <button onclick="closeGuideModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.1] border border-white/[0.08] transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+
+        <div class="space-y-1 pr-8">
+          <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[10px] text-indigo-400 font-semibold uppercase tracking-wider">
+            Knowledge Base & Interpretation Guide
+          </div>
+          <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <i data-lucide="book-open" class="w-5 h-5 text-indigo-400"></i>
+            <span>Cẩm Nang Ý Nghĩa Chỉ Số & 6 Giai Đoạn Vòng Đời</span>
+          </h2>
+          <p class="text-xs text-slate-400 font-light">
+            Giải thích chi tiết cách đọc tín hiệu trending theo thời gian và đánh giá đúng tiềm năng công nghệ.
+          </p>
+        </div>
+
+        <!-- 3 Core Analytical Insights -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          
+          <!-- Card 1: Legacy Dropdown Problem -->
+          <div class="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.08] space-y-2">
+            <div class="flex items-center gap-2 text-xs font-bold text-amber-300">
+              <span>💤</span>
+              <span>Repo Lâu Năm Bão Hòa</span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-light leading-relaxed">
+              Các repo 100k+ stars (như <i>freeCodeCamp, vuejs</i>) đã đạt độ phủ toàn ngành. Đa số lập trình viên đã star từ trước, nên trong 6 tháng gần đây không còn nhận lượng star bùng nổ hàng ngày.
+            </p>
+            <div class="pt-1.5 border-t border-white/[0.06] text-[10px] text-amber-400/90 font-medium">
+              👉 Cơ chế Time-Window tự động hạ thứ hạng repo cũ không active để nhường vị trí cho repo mới nổi.
+            </div>
+          </div>
+
+          <!-- Card 2: Persistence Score -->
+          <div class="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.08] space-y-2">
+            <div class="flex items-center gap-2 text-xs font-bold text-emerald-300">
+              <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+              <span>Persistence Score</span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-light leading-relaxed">
+              Thang điểm 0 - 100 đo lường độ <b>bám trụ bền bỉ</b> trên bảng xếp hạng qua các chu kỳ Daily, Weekly, Monthly và mật độ xuất hiện đều đặn trong suốt khoảng thời gian.
+            </p>
+            <div class="pt-1.5 border-t border-white/[0.06] text-[10px] text-emerald-400/90 font-medium">
+              👉 Điểm cao = Dự án cốt lõi được cộng đồng tin cậy lâu dài (Ecosystem Pillar).
+            </div>
+          </div>
+
+          <!-- Card 3: Velocity Score -->
+          <div class="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.08] space-y-2">
+            <div class="flex items-center gap-2 text-xs font-bold text-cyan-300">
+              <i data-lucide="zap" class="w-4 h-4 text-cyan-400"></i>
+              <span>Velocity Score</span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-light leading-relaxed">
+              Thang điểm 0 - 100 đo lường <b>xung lực tăng tốc</b>: Số stars thu hoạch trong kỳ, gia tốc bứt phá giữa các snapshot và tần suất leo lên Top 1-3.
+            </p>
+            <div class="pt-1.5 border-t border-white/[0.06] text-[10px] text-cyan-400/90 font-medium">
+              👉 Điểm cao = Công nghệ đột phá hoặc đang tạo làn sóng FOMO mạnh mẽ.
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 6 Lifecycle Stages Table -->
+        <div class="space-y-2">
+          <div class="text-xs font-semibold text-slate-300 flex items-center gap-2">
+            <i data-lucide="compass" class="w-4 h-4 text-indigo-400"></i>
+            <span>Bảng Phân Loại 6 Giai Đoạn Vòng Đời Dự Án (Lifecycle Trajectory)</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-1">
+              <div class="font-bold text-cyan-300 flex items-center gap-1.5">
+                <span>🚀</span><span>Bùng Nổ (Viral Apex)</span>
+              </div>
+              <p class="text-[11px] text-slate-400 font-light">Tăng trưởng star thần tốc, V-Score &ge; 70. Công nghệ cách mạng hoặc giải pháp AI đang là tâm điểm chú ý.</p>
+            </div>
+
+            <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-1">
+              <div class="font-bold text-emerald-300 flex items-center gap-1.5">
+                <span>🛡️</span><span>Trụ Cột Bền Vững (Ecosystem Pillar)</span>
+              </div>
+              <p class="text-[11px] text-slate-400 font-light">P-Score &ge; 60 duy trì qua nhiều kỳ. Thư viện/framework hạ tầng đã vào giai đoạn production ổn định.</p>
+            </div>
+
+            <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-1">
+              <div class="font-bold text-amber-300 flex items-center gap-1.5">
+                <span>💤</span><span>Di Sản / Đã Bão Hòa (Legacy Giant)</span>
+              </div>
+              <p class="text-[11px] text-slate-400 font-light">Stars all-time lớn nhưng ít trending trong kỳ gần đây. Đã đạt độ bão hòa người dùng, tốc độ đón nhận chậm lại.</p>
+            </div>
+
+            <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-1">
+              <div class="font-bold text-purple-300 flex items-center gap-1.5">
+                <span>🔄</span><span>Tái Sinh Đột Phá (Revival)</span>
+              </div>
+              <p class="text-[11px] text-slate-400 font-light">Kỳ trước yên ắng, kỳ này bứt phá mạnh mẽ (&gt;+50% stars). Thường do có Major v2/v3 rewrite hoặc đổi hướng thành công.</p>
+            </div>
+
+            <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-1">
+              <div class="font-bold text-slate-300 flex items-center gap-1.5">
+                <span>📉</span><span>Hạ Nhiệt Tương Đối (Cooling Down)</span>
+              </div>
+              <p class="text-[11px] text-slate-400 font-light">Tần suất trending và star sụt giảm so với kỳ hoàng kim trước. Cộng đồng đang tìm kiếm giải pháp mới hơn.</p>
+            </div>
+
+            <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-1">
+              <div class="font-bold text-blue-300 flex items-center gap-1.5">
+                <span>🌱</span><span>Mới Nổi Tiềm Năng (Emerging Prospect)</span>
+              </div>
+              <p class="text-[11px] text-slate-400 font-light">Repo mới toanh trong 60 ngày gần đây có gia tốc tốt. Dự án tiềm năng cần đưa vào danh sách theo dõi.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end pt-2 border-t border-white/[0.08]">
+          <button onclick="closeGuideModal()" class="px-5 py-2 rounded-full text-xs font-medium bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 border border-white/[0.08] transition">Đã Hiểu</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
   <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-500 ease-haptic pointer-events-none">
     <div id="toast-content" class="px-4 py-3 rounded-full shadow-2xl flex items-center gap-3 text-xs font-medium border bg-[#0d1017]/95 border-white/[0.12] text-white backdrop-blur-2xl">
       <i id="toast-icon" data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
@@ -645,9 +918,15 @@
       since: "all",
       language: "all",
       minAppearances: null,
+      timeWindow: "all",
+      hideInactive: false,
+      startDate: null,
+      endDate: null,
       sortBy: "total_appearances",
       sortDir: "desc",
-      isLoading: false
+      isLoading: false,
+      currentCompareRepoId: null,
+      currentComparePreset: "6m_vs_prior_6m"
     };
 
     let searchDebounceTimeout = null;
@@ -763,10 +1042,10 @@
       const tbody = document.getElementById("repo-table-body");
       tbody.innerHTML = `
         <tr>
-          <td colspan="11" class="py-16 text-center text-slate-400">
+          <td colspan="12" class="py-16 text-center text-slate-400">
             <div class="flex flex-col items-center justify-center space-y-3">
-              <div class="w-7 h-7 rounded-full border-2 border-emerald-500/30 border-t-emerald-400 animate-spin"></div>
-              <p class="text-xs font-light">Đang đồng bộ dữ liệu...</p>
+              <div class="w-7 h-7 rounded-full border-2 border-cyan-500/30 border-t-cyan-400 animate-spin"></div>
+              <p class="text-xs font-light">Đang phân tích và tính toán dữ liệu theo kỳ...</p>
             </div>
           </td>
         </tr>
@@ -784,6 +1063,10 @@
       if (state.language && state.language !== "all") params.append("language", state.language);
       if (state.since && state.since !== "all") params.append("since", state.since);
       if (state.minAppearances) params.append("min_appearances", state.minAppearances);
+      if (state.timeWindow && state.timeWindow !== "all") params.append("time_window", state.timeWindow);
+      if (state.hideInactive) params.append("hide_inactive", "true");
+      if (state.startDate) params.append("start_date", state.startDate);
+      if (state.endDate) params.append("end_date", state.endDate);
 
       try {
         const res = await fetch(`/api/repositories?${params.toString()}`);
@@ -792,12 +1075,30 @@
 
         state.total = data.total;
         state.totalPages = data.total_pages;
+
+        // Cập nhật nhãn trạng thái kỳ
+        const statusPill = document.getElementById("window-status-pill");
+        if (statusPill) {
+          statusPill.textContent = data.time_window_label || "Toàn bộ thời gian (All-time)";
+        }
+
+        // Cập nhật header bảng theo kỳ
+        const appHeader = document.getElementById("col-appearances-header");
+        const starsHeader = document.getElementById("col-stars-header");
+        if (state.timeWindow && state.timeWindow !== "all") {
+          if (appHeader) appHeader.textContent = "Trending Trong Kỳ";
+          if (starsHeader) starsHeader.textContent = "⭐ Tăng Trong Kỳ";
+        } else {
+          if (appHeader) appHeader.textContent = "Số Lần Trending";
+          if (starsHeader) starsHeader.textContent = "Stars (Tổng / Kỳ)";
+        }
+
         renderTable(data.items);
         updatePagination();
       } catch (err) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="11" class="py-12 text-center text-rose-400">
+            <td colspan="12" class="py-12 text-center text-rose-400">
               <p>Có lỗi khi tải dữ liệu: ${err.message}</p>
             </td>
           </tr>
@@ -813,7 +1114,7 @@
       if (!items || items.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="11" class="py-16 text-center text-slate-500">
+            <td colspan="12" class="py-16 text-center text-slate-500">
               <div class="flex flex-col items-center justify-center space-y-2">
                 <i data-lucide="inbox" class="w-8 h-8 text-slate-600"></i>
                 <p class="text-xs">Không có repository nào phù hợp với điều kiện tìm kiếm.</p>
@@ -824,49 +1125,86 @@
         return;
       }
 
+      const isWindowed = (state.timeWindow && state.timeWindow !== "all");
+
       const rowsHtml = items.map((repo, idx) => {
         const rankNumber = (state.page - 1) * state.pageSize + idx + 1;
         
         // 1. Occurrence badge
+        const currentOcc = isWindowed ? (repo.window_appearances ?? 0) : (repo.total_appearances ?? 0);
         let occBadge = '';
-        if (repo.total_appearances >= 3) {
+        if (currentOcc >= 3) {
           occBadge = `
             <span class="inline-flex items-center whitespace-nowrap gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-[0_0_12px_rgba(245,158,11,0.15)]">
               <i data-lucide="flame" class="w-3.5 h-3.5 text-amber-400"></i>
-              <span>${repo.total_appearances} lần</span>
+              <span>${currentOcc} lần</span>
             </span>
           `;
-        } else if (repo.total_appearances === 2) {
+        } else if (currentOcc === 2) {
           occBadge = `
             <span class="inline-flex items-center whitespace-nowrap gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.12)]">
               <i data-lucide="zap" class="w-3.5 h-3.5 text-emerald-400"></i>
-              <span>${repo.total_appearances} lần</span>
+              <span>${currentOcc} lần</span>
+            </span>
+          `;
+        } else if (currentOcc === 1) {
+          occBadge = `
+            <span class="inline-flex items-center whitespace-nowrap gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium text-slate-300 bg-white/[0.04] border border-white/[0.08]">
+              <span>1 lần</span>
             </span>
           `;
         } else {
           occBadge = `
-            <span class="inline-flex items-center whitespace-nowrap gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium text-slate-300 bg-white/[0.04] border border-white/[0.08]">
-              <span>${repo.total_appearances} lần</span>
+            <span class="inline-flex items-center whitespace-nowrap gap-1 px-2 py-0.5 rounded-full text-[10px] font-light text-slate-500 bg-white/[0.02] border border-white/[0.05]">
+              <span>0 lần kỳ này</span>
             </span>
           `;
         }
 
-        // 2. Persistence Score Badge
-        const pScore = repo.persistence_score ? Number(repo.persistence_score).toFixed(1) : '0.0';
+        // 2. Lifecycle Stage Badge & Trending Score
+        const trendScore = repo.window_trending_score ? Number(repo.window_trending_score).toFixed(1) : '0.0';
+        let lifecycleBadge = '';
+        const lCode = repo.lifecycle_code || 'moderate';
+        const lLabel = repo.lifecycle_label || '⚡ Tiềm Năng';
+        
+        let lColor = 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30';
+        if (lCode === 'viral_surge' || lCode.includes('viral')) {
+          lColor = 'bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/35 shadow-[0_0_10px_rgba(217,70,239,0.2)]';
+        } else if (lCode === 'sustained_anchor') {
+          lColor = 'bg-emerald-500/15 text-emerald-300 border-emerald-500/35 shadow-[0_0_10px_rgba(16,185,129,0.15)]';
+        } else if (lCode === 'legacy_giant' || lCode === 'legacy_dormant') {
+          lColor = 'bg-amber-500/10 text-amber-400/90 border-amber-500/25';
+        } else if (lCode === 'revival') {
+          lColor = 'bg-purple-500/15 text-purple-300 border-purple-500/35';
+        } else if (lCode === 'emerging_prospect') {
+          lColor = 'bg-blue-500/15 text-blue-300 border-blue-500/35';
+        }
+
+        lifecycleBadge = `
+          <div class="flex flex-col items-center gap-1">
+            <span class="inline-flex items-center whitespace-nowrap gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${lColor}" title="${repo.lifecycle_desc || ''}">
+              <span>${lLabel}</span>
+            </span>
+            <span class="text-[10px] font-mono text-slate-400">Score: <b class="text-cyan-400">${trendScore}</b></span>
+          </div>
+        `;
+
+        // 3. Persistence Score Badge
+        const pScore = (isWindowed ? repo.window_persistence_score : repo.persistence_score) ? Number(isWindowed ? repo.window_persistence_score : repo.persistence_score).toFixed(1) : '0.0';
         let pBadge = '';
-        if (repo.persistence_level === 'legend' || repo.persistence_score >= 85) {
+        if (Number(pScore) >= 80) {
           pBadge = `
             <span class="inline-flex items-center whitespace-nowrap gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/40 shadow-[0_0_10px_rgba(245,158,11,0.2)]" title="🏆 Huyền thoại (${pScore}đ)">
               <span>🏆</span><span>${pScore}</span>
             </span>
           `;
-        } else if (repo.persistence_level === 'high' || repo.persistence_score >= 65) {
+        } else if (Number(pScore) >= 60) {
           pBadge = `
             <span class="inline-flex items-center whitespace-nowrap gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-orange-500/15 text-orange-300 border border-orange-500/30" title="🔥 Bền bỉ (${pScore}đ)">
               <span>🔥</span><span>${pScore}</span>
             </span>
           `;
-        } else if (repo.persistence_level === 'medium' || repo.persistence_score >= 35) {
+        } else if (Number(pScore) >= 35) {
           pBadge = `
             <span class="inline-flex items-center whitespace-nowrap gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-300 border border-emerald-500/30" title="⚡ Ổn định (${pScore}đ)">
               <span>⚡</span><span>${pScore}</span>
@@ -880,22 +1218,22 @@
           `;
         }
 
-        // 3. Velocity Score Badge
-        const vScore = repo.velocity_score ? Number(repo.velocity_score).toFixed(1) : '0.0';
+        // 4. Velocity Score Badge
+        const vScore = (isWindowed ? repo.window_velocity_score : repo.velocity_score) ? Number(isWindowed ? repo.window_velocity_score : repo.velocity_score).toFixed(1) : '0.0';
         let vBadge = '';
-        if (repo.velocity_level === 'rocket' || repo.velocity_score >= 80) {
+        if (Number(vScore) >= 75) {
           vBadge = `
-            <span class="inline-flex items-center whitespace-nowrap gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-fuchsia-500/15 text-fuchsia-300 border border-fuchsia-500/40 shadow-[0_0_10px_rgba(217,70,239,0.2)]" title="🚀 Tên lửa (${vScore}đ)">
+            <span class="inline-flex items-center whitespace-nowrap gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-fuchsia-500/15 text-fuchsia-300 border border-fuchsia-500/40 shadow-[0_0_10px_rgba(217,70,239,0.2)]" title="🚀 Siêu tốc (${vScore}đ)">
               <span>🚀</span><span>${vScore}</span>
             </span>
           `;
-        } else if (repo.velocity_level === 'surging' || repo.velocity_score >= 60) {
+        } else if (Number(vScore) >= 55) {
           vBadge = `
             <span class="inline-flex items-center whitespace-nowrap gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 shadow-[0_0_10px_rgba(6,182,212,0.15)]" title="⚡ Bứt phá (${vScore}đ)">
               <span>⚡</span><span>${vScore}</span>
             </span>
           `;
-        } else if (repo.velocity_level === 'steady' || repo.velocity_score >= 30) {
+        } else if (Number(vScore) >= 30) {
           vBadge = `
             <span class="inline-flex items-center whitespace-nowrap gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-500/15 text-blue-300 border border-blue-500/30" title="📈 Tăng đều (${vScore}đ)">
               <span>📈</span><span>${vScore}</span>
@@ -918,21 +1256,42 @@
           </div>
         ` : `<span class="text-slate-500 text-xs italic whitespace-nowrap">Chưa rõ</span>`;
 
-        // Stars & Forks
+        // Stars & Window Stars
         const starsFormatted = repo.current_stars ? repo.current_stars.toLocaleString() : "0";
         const forksFormatted = repo.current_forks ? repo.current_forks.toLocaleString() : "0";
+        const windowStars = (repo.window_stars_gained || 0).toLocaleString();
         const periodStars = repo.latest_period_stars || "—";
         const lastSeen = repo.last_seen_at ? new Date(repo.last_seen_at).toLocaleDateString("vi-VN") : "—";
+
+        let starsColumnHtml = '';
+        if (isWindowed) {
+          starsColumnHtml = `
+            <div>
+              <div class="inline-flex items-center gap-1 font-semibold text-emerald-400">
+                <i data-lucide="star" class="w-3.5 h-3.5 text-yellow-400 fill-yellow-400"></i>
+                <span>+${windowStars}</span>
+              </div>
+              <div class="text-[10px] text-slate-500 font-light">Tổng: ${starsFormatted}</div>
+            </div>
+          `;
+        } else {
+          starsColumnHtml = `
+            <div class="inline-flex items-center gap-1.5 font-medium text-slate-200">
+              <i data-lucide="star" class="w-3.5 h-3.5 text-yellow-400 fill-yellow-400"></i>
+              <span>${starsFormatted}</span>
+            </div>
+          `;
+        }
 
         return `
           <tr class="hover:bg-white/[0.025] transition-colors duration-200 group">
             <td class="py-3.5 px-3 text-center font-mono text-slate-500 text-xs whitespace-nowrap">${rankNumber}</td>
             <td class="py-3.5 px-4 min-w-[240px] max-w-sm">
               <div class="space-y-1">
-                <a href="${repo.url}" target="_blank" class="font-semibold text-slate-100 hover:text-emerald-400 inline-flex items-center gap-1.5 transition group">
+                <a href="${repo.url}" target="_blank" class="font-semibold text-slate-100 hover:text-cyan-400 inline-flex items-center gap-1.5 transition group">
                   <span class="text-slate-400 font-normal whitespace-nowrap">${repo.owner}&nbsp;/</span>
-                  <span class="font-bold text-slate-100 group-hover:text-emerald-400 transition">${repo.name}</span>
-                  <i data-lucide="external-link" class="w-3 h-3 opacity-0 group-hover:opacity-100 transition text-emerald-400 flex-shrink-0"></i>
+                  <span class="font-bold text-slate-100 group-hover:text-cyan-400 transition">${repo.name}</span>
+                  <i data-lucide="external-link" class="w-3 h-3 opacity-0 group-hover:opacity-100 transition text-cyan-400 flex-shrink-0"></i>
                 </a>
                 <p class="text-[11px] text-slate-400 line-clamp-1 font-light max-w-xs sm:max-w-md">${repo.description || 'Không có mô tả'}</p>
               </div>
@@ -949,16 +1308,16 @@
               </div>
             </td>
             <td class="py-3.5 px-3 text-center whitespace-nowrap">
+              ${lifecycleBadge}
+            </td>
+            <td class="py-3.5 px-3 text-center whitespace-nowrap">
               ${pBadge}
             </td>
             <td class="py-3.5 px-3 text-center whitespace-nowrap">
               ${vBadge}
             </td>
-            <td class="py-3.5 px-3 font-medium text-slate-200 whitespace-nowrap">
-              <div class="inline-flex items-center gap-1.5">
-                <i data-lucide="star" class="w-3.5 h-3.5 text-yellow-400 fill-yellow-400"></i>
-                <span>${starsFormatted}</span>
-              </div>
+            <td class="py-3.5 px-3 whitespace-nowrap">
+              ${starsColumnHtml}
             </td>
             <td class="py-3.5 px-3 text-slate-400 whitespace-nowrap">
               <div class="inline-flex items-center gap-1.5">
@@ -971,17 +1330,28 @@
                 ${periodStars}
               </span>
             </td>
-            <td class="py-3.5 px-3 text-slate-400 text-xs whitespace-nowrap hidden md:table-cell">
+            <td class="py-3.5 px-3 text-slate-400 text-xs whitespace-nowrap hidden lg:table-cell">
               ${lastSeen}
             </td>
             <td class="py-3.5 px-3 text-center whitespace-nowrap">
-              <button 
-                onclick="openDetailModal(${repo.id})" 
-                class="p-1.5 text-slate-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.1] rounded-full border border-white/[0.08] transition" 
-                title="Xem chi tiết lịch sử & điểm"
-              >
-                <i data-lucide="info" class="w-3.5 h-3.5"></i>
-              </button>
+              <div class="flex items-center justify-center gap-1.5">
+                <!-- Info Button -->
+                <button 
+                  onclick="openDetailModal(${repo.id})" 
+                  class="p-1.5 text-slate-400 hover:text-white bg-white/[0.04] hover:bg-white/[0.1] rounded-full border border-white/[0.08] transition" 
+                  title="Xem chi tiết snapshot & điểm"
+                >
+                  <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                </button>
+                <!-- Compare Button -->
+                <button 
+                  onclick="openCompareModal(${repo.id})" 
+                  class="p-1.5 text-cyan-400 hover:text-white bg-cyan-500/10 hover:bg-cyan-500/20 rounded-full border border-cyan-500/25 transition" 
+                  title="Phân tích đa kỳ & so sánh vòng đời"
+                >
+                  <i data-lucide="line-chart" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
             </td>
           </tr>
         `;
@@ -1068,7 +1438,7 @@
     }
 
     function updateSortHeaderIcons() {
-      ["total_appearances", "persistence_score", "velocity_score", "current_stars", "last_seen_at"].forEach(c => {
+      ["total_appearances", "window_trending_score", "persistence_score", "velocity_score", "current_stars", "last_seen_at"].forEach(c => {
         const el = document.getElementById(`sort-icon-${c}`);
         if (el) {
           if (state.sortBy === c) {
@@ -1305,6 +1675,307 @@
 
     function closeSessionsModal() {
       document.getElementById("sessions-modal").classList.add("hidden");
+    }
+
+    function setTimeWindow(code) {
+      state.timeWindow = code;
+      state.page = 1;
+
+      const presets = ['all', '7d', '30d', '90d', '180d', '365d'];
+      presets.forEach(p => {
+        const el = document.getElementById(`win-${p}`);
+        if (el) {
+          if (p === code) {
+            el.className = "px-3 py-1 rounded-full bg-cyan-600 text-white shadow-sm transition whitespace-nowrap flex items-center gap-1.5";
+          } else {
+            el.className = "px-3 py-1 rounded-full text-slate-400 hover:text-white transition whitespace-nowrap flex items-center gap-1.5";
+          }
+        }
+      });
+
+      // Khi chuyển sang khung thời gian cụ thể, mặc định xếp theo Điểm Trending trong kỳ
+      if (code !== 'all') {
+        state.sortBy = "window_trending_score";
+        state.sortDir = "desc";
+        const sortSelect = document.getElementById("sort-select");
+        if (sortSelect) sortSelect.value = "window_trending_score";
+        updateSortHeaderIcons();
+      }
+
+      loadRepositories();
+    }
+
+    function toggleHideInactive() {
+      const checkbox = document.getElementById("hide-inactive-check");
+      state.hideInactive = checkbox ? checkbox.checked : false;
+      state.page = 1;
+      loadRepositories();
+    }
+
+    async function seedTimelineDemo() {
+      const btn = document.getElementById("btn-seed-timeline");
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span class="inline-block w-3.5 h-3.5 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin"></span><span class="text-xs">Đang nạp...</span>`;
+      }
+
+      showToast("Đang nạp mô phỏng timeline 12-18 tháng cho 5 loại repository...", "success");
+
+      try {
+        const res = await fetch("/api/seed-timeline-demo", { method: "POST" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Lỗi nạp timeline demo");
+
+        showToast("Đã nạp 12-18 tháng mô phỏng thành công! Đang chuyển sang xem '6 Tháng Gần Đây'...", "success");
+        await loadStats();
+        await loadLanguages();
+        setTimeWindow('180d');
+      } catch (err) {
+        showToast(`Lỗi: ${err.message}`, "error");
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `
+            <span class="hidden sm:inline">Demo 12 Tháng</span>
+            <span class="sm:hidden">12T</span>
+            <div class="w-6 h-6 rounded-full bg-cyan-500/20 border border-cyan-500/35 flex items-center justify-center group-hover:scale-105 transition duration-300">
+              <i data-lucide="line-chart" class="w-3 h-3 text-cyan-400"></i>
+            </div>
+          `;
+          lucide.createIcons();
+        }
+      }
+    }
+
+    async function openCompareModal(repoId, preset = '6m_vs_prior_6m') {
+      state.currentCompareRepoId = repoId;
+      state.currentComparePreset = preset;
+
+      const modal = document.getElementById("compare-modal");
+      const title = document.getElementById("compare-repo-title");
+      const desc = document.getElementById("compare-repo-desc");
+      const trajectoryContainer = document.getElementById("compare-trajectory-container");
+      const tableBody = document.getElementById("compare-table-body");
+      const colP1 = document.getElementById("compare-col-p1");
+      const colP2 = document.getElementById("compare-col-p2");
+
+      modal.classList.remove("hidden");
+
+      // Cập nhật preset active buttons
+      const presetMap = {
+        '6m_vs_prior_6m': 'cp-preset-6m_prior',
+        '6m_vs_same_last_year': 'cp-preset-6m_year',
+        '30d_vs_prior_30d': 'cp-preset-30d_prior'
+      };
+
+      Object.entries(presetMap).forEach(([key, btnId]) => {
+        const el = document.getElementById(btnId);
+        if (el) {
+          if (key === preset) {
+            el.className = "px-3.5 py-1 rounded-full bg-cyan-600 text-white font-medium shadow-sm transition whitespace-nowrap";
+          } else {
+            el.className = "px-3.5 py-1 rounded-full text-slate-400 hover:text-white font-medium transition whitespace-nowrap";
+          }
+        }
+      });
+
+      trajectoryContainer.innerHTML = `
+        <div class="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.08] text-center">
+          <div class="w-7 h-7 rounded-full border-2 border-cyan-500/30 border-t-cyan-400 animate-spin mx-auto mb-2"></div>
+          <p class="text-xs text-slate-400">Đang đối chiếu dữ liệu 2 thời kỳ...</p>
+        </div>
+      `;
+      tableBody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-slate-500">Đang tải số liệu...</td></tr>`;
+      lucide.createIcons();
+
+      try {
+        const res = await fetch(`/api/repositories/${repoId}/compare?preset=${preset}`);
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || "Không tải được dữ liệu so sánh");
+        }
+        const data = await res.json();
+
+        const repo = data.repository;
+        const p1 = data.period_1;
+        const p2 = data.period_2;
+        const traj = data.lifecycle_trajectory || data.trajectory || {};
+        const delta = data.delta || {};
+
+        title.innerHTML = `
+          <i data-lucide="line-chart" class="w-5 h-5 text-cyan-400"></i>
+          <span>${repo.full_name}</span>
+          <span class="text-xs font-normal text-slate-400">(${repo.language || 'Chưa rõ'})</span>
+        `;
+        desc.textContent = repo.description || 'Không có mô tả';
+
+        colP1.innerHTML = `
+          <span>${p1.name || p1.label}</span>
+          <div class="text-[10px] text-slate-400 font-normal font-mono">${p1.start_date || '—'} → ${p1.end_date || '—'}</div>
+        `;
+        colP2.innerHTML = `
+          <span>${p2.name || p2.label}</span>
+          <div class="text-[10px] text-slate-400 font-normal font-mono">${p2.start_date || '—'} → ${p2.end_date || '—'}</div>
+        `;
+
+        // Trajectory Card Styling
+        let badgeBorder = "border-cyan-500/30";
+        let badgeBg = "bg-cyan-500/10";
+        let badgeText = "text-cyan-300";
+        const tone = traj.tone || 'accent';
+        if (tone === 'warning') {
+          badgeBorder = "border-amber-500/30"; badgeBg = "bg-amber-500/10"; badgeText = "text-amber-300";
+        } else if (tone === 'success') {
+          badgeBorder = "border-emerald-500/35"; badgeBg = "bg-emerald-500/10"; badgeText = "text-emerald-300";
+        } else if (tone === 'accent') {
+          badgeBorder = "border-fuchsia-500/35"; badgeBg = "bg-fuchsia-500/10"; badgeText = "text-fuchsia-300";
+        } else if (tone === 'secondary') {
+          badgeBorder = "border-blue-500/35"; badgeBg = "bg-blue-500/10"; badgeText = "text-blue-300";
+        }
+
+        const stageTitle = traj.badge || traj.stage_name || 'Phân Tích Vòng Đời';
+        const headline = traj.stage_summary || traj.headline || '';
+        const explanation = traj.insight_text || traj.explanation || '';
+        const devMeaning = traj.meaning_for_dev || '';
+
+        const m1 = p1.metrics || {};
+        const m2 = p2.metrics || {};
+
+        const p1Trend = m1.window_trending_score ?? m1.trending_score ?? 0;
+        const p2Trend = m2.window_trending_score ?? m2.trending_score ?? 0;
+        const p1PScore = m1.window_persistence_score ?? m1.persistence_score ?? 0;
+        const p2PScore = m2.window_persistence_score ?? m2.persistence_score ?? 0;
+        const p1VScore = m1.window_velocity_score ?? m1.velocity_score ?? 0;
+        const p2VScore = m2.window_velocity_score ?? m2.velocity_score ?? 0;
+        const p1Stars = m1.window_stars_gained ?? m1.stars_gained ?? 0;
+        const p2Stars = m2.window_stars_gained ?? m2.stars_gained ?? 0;
+        const p1App = m1.window_appearances ?? m1.appearances_count ?? 0;
+        const p2App = m2.window_appearances ?? m2.appearances_count ?? 0;
+        const p1AvgRank = m1.window_avg_rank ?? m1.avg_rank;
+        const p2AvgRank = m2.window_avg_rank ?? m2.avg_rank;
+
+        const deltaStars = delta.stars_gained ?? (p1Stars - p2Stars);
+        const deltaPct = delta.stars_gained_pct ?? delta.growth_rate_pct;
+        const deltaApp = delta.appearances ?? (p1App - p2App);
+        const deltaP = delta.persistence_score ?? (p1PScore - p2PScore);
+        const deltaV = delta.velocity_score ?? (p1VScore - p2VScore);
+        const deltaTrend = delta.trending_score ?? (p1Trend - p2Trend);
+        const deltaRank = delta.avg_rank !== undefined ? delta.avg_rank : (p1AvgRank !== null && p2AvgRank !== null && p1AvgRank !== undefined && p2AvgRank !== undefined ? (p1AvgRank - p2AvgRank) : null);
+
+        trajectoryContainer.innerHTML = `
+          <div class="p-4 rounded-2xl ${badgeBg} border ${badgeBorder} space-y-2.5">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="px-3 py-1 rounded-full text-xs font-bold ${badgeBg} ${badgeText} border ${badgeBorder} shadow-sm">
+                  ${stageTitle}
+                </span>
+                <span class="text-xs text-slate-200 font-medium">${headline}</span>
+              </div>
+              <div class="text-[11px] font-mono text-slate-400">
+                Trend Score: <b class="text-cyan-400 font-bold">${Number(p1Trend).toFixed(1)}</b> 
+                vs <span class="text-slate-400">${Number(p2Trend).toFixed(1)}</span>
+              </div>
+            </div>
+
+            <p class="text-xs text-slate-300 font-light leading-relaxed">
+              ${explanation}
+            </p>
+
+            <div class="pt-2 border-t border-white/[0.08] flex items-start gap-2 text-xs">
+              <span class="text-amber-400 flex-shrink-0 font-bold">💡 Ý nghĩa cho Dev:</span>
+              <span class="text-slate-300 font-light leading-relaxed">${devMeaning}</span>
+            </div>
+          </div>
+        `;
+
+        // Render Side-by-Side rows
+        const formatDelta = (val, isPercent = false, suffix = '') => {
+          if (val === null || val === undefined) return `<span class="text-slate-500 font-mono">—</span>`;
+          const num = Number(val);
+          const sign = num > 0 ? '+' : '';
+          let color = 'text-slate-400';
+          if (num > 0) color = 'text-emerald-400 font-semibold';
+          else if (num < 0) color = 'text-rose-400 font-semibold';
+          return `<span class="${color} font-mono">${sign}${isPercent ? num.toFixed(1) + '%' : num.toLocaleString()}${suffix}</span>`;
+        };
+
+        const rows = [
+          {
+            label: 'Số Ngày Xuất Hiện Trending',
+            p1: `${p1App} ngày`,
+            p2: `${p2App} ngày`,
+            delta: formatDelta(deltaApp, false, ' ngày')
+          },
+          {
+            label: 'Số Stars Thu Hoạch (Stars Gained)',
+            p1: `+${p1Stars.toLocaleString()} ⭐`,
+            p2: `+${p2Stars.toLocaleString()} ⭐`,
+            delta: `${formatDelta(deltaStars)} <span class="text-[10px] text-slate-500">(${formatDelta(deltaPct, true)})</span>`
+          },
+          {
+            label: 'Điểm Bền Bỉ (Persistence Score)',
+            p1: `${Number(p1PScore).toFixed(1)} / 100`,
+            p2: `${Number(p2PScore).toFixed(1)} / 100`,
+            delta: formatDelta(deltaP)
+          },
+          {
+            label: 'Điểm Tốc Độ (Velocity Score)',
+            p1: `${Number(p1VScore).toFixed(1)} / 100`,
+            p2: `${Number(p2VScore).toFixed(1)} / 100`,
+            delta: formatDelta(deltaV)
+          },
+          {
+            label: 'Tổng Hợp Điểm Trending (Trend Score)',
+            p1: `<b class="text-cyan-400 font-bold">${Number(p1Trend).toFixed(1)}</b>`,
+            p2: `<b class="text-slate-300">${Number(p2Trend).toFixed(1)}</b>`,
+            delta: formatDelta(deltaTrend)
+          },
+          {
+            label: 'Thứ Hạng Bình Quân Khi Trending',
+            p1: p1AvgRank ? `#${p1AvgRank}` : '—',
+            p2: p2AvgRank ? `#${p2AvgRank}` : '—',
+            delta: deltaRank !== null ? (deltaRank < 0 ? `<span class="text-emerald-400 font-mono">Tăng ${Math.abs(deltaRank)} bậc</span>` : `<span class="text-rose-400 font-mono">Giảm ${deltaRank} bậc</span>`) : '—'
+          }
+        ];
+
+        tableBody.innerHTML = rows.map(r => `
+          <tr class="hover:bg-white/[0.02]">
+            <td class="p-3 text-slate-300 font-medium">${r.label}</td>
+            <td class="p-3 text-cyan-300 font-semibold font-mono">${r.p1}</td>
+            <td class="p-3 text-slate-400 font-mono">${r.p2}</td>
+            <td class="p-3 text-right font-mono">${r.delta}</td>
+          </tr>
+        `).join("");
+
+      } catch (err) {
+        trajectoryContainer.innerHTML = `
+          <div class="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs">
+            Lỗi khi đối chiếu: ${err.message}
+          </div>
+        `;
+        tableBody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-rose-400">Không có dữ liệu so sánh.</td></tr>`;
+      } finally {
+        lucide.createIcons();
+      }
+    }
+
+    function changeComparePreset(preset) {
+      if (state.currentCompareRepoId) {
+        openCompareModal(state.currentCompareRepoId, preset);
+      }
+    }
+
+    function closeCompareModal() {
+      document.getElementById("compare-modal").classList.add("hidden");
+    }
+
+    function openGuideModal() {
+      document.getElementById("guide-modal").classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    function closeGuideModal() {
+      document.getElementById("guide-modal").classList.add("hidden");
     }
   </script>
 </body>

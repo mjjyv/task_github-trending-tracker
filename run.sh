@@ -13,8 +13,8 @@ fi
 
 echo "=========================================================="
 echo "   Khởi động GitHub Trending Tracker Dashboard"
-echo "   Truy cập: http://127.0.0.1:8000"
+echo "   Truy cập: http://127.0.0.1:8001"
 echo "=========================================================="
 
 export PYTHONPATH="$DIR"
-exec .venv/bin/python3 -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+exec .venv/bin/python3 -m uvicorn app.main:app --host 127.0.0.1 --port 8001 --reload
