@@ -125,10 +125,21 @@ def calculate_window_metrics(
     # 4. Tính lượng Stars thu hoạch được trong kỳ
     first_snap = filtered_snaps[0]
     last_snap = filtered_snaps[-1]
-    star_delta = max(0, (last_snap.stars or 0) - (first_snap.stars or 0))
+    observed_diff = max(0, (last_snap.stars or 0) - (first_snap.stars or 0))
 
-    if star_delta == 0:
-        star_delta = sum(max(0, s.period_stars_count or 0) for s in filtered_snaps)
+    # Nhóm daily snapshots theo ngày để tính tổng star các ngày khác nhau nếu có
+    daily_by_date = {}
+    for s in filtered_snaps:
+        if s.since == "daily" and s.record_date:
+            daily_by_date[s.record_date] = max(
+                daily_by_date.get(s.record_date, 0),
+                s.period_stars_count or 0,
+            )
+    sum_daily = sum(daily_by_date.values())
+    max_period = max((s.period_stars_count or 0) for s in filtered_snaps) if filtered_snaps else 0
+
+    # Lượng star thu hoạch chuẩn xác: không thể nhỏ hơn lượng star GitHub Trending ghi nhận trong kỳ
+    star_delta = max(observed_diff, max_period, sum_daily)
 
     # 5. Phân tích thứ hạng rank
     ranks = [s.rank_position for s in filtered_snaps if s.rank_position is not None and s.rank_position > 0]
