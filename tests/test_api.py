@@ -112,3 +112,36 @@ def test_seed_demo_and_query_repositories():
     assert jobs_resp.status_code == 200
     assert isinstance(jobs_resp.json(), list)
 
+
+def test_clear_demo_and_reset_database():
+    # 1. Seed demo timeline
+    seed_resp = client.post("/api/seed-timeline-demo")
+    assert seed_resp.status_code == 200
+
+    # Verify repos exist
+    repo_resp = client.get("/api/repositories")
+    assert repo_resp.status_code == 200
+    assert repo_resp.json()["total"] >= 5
+
+    # 2. Clear demo data
+    clear_resp = client.post("/api/demo/clear")
+    assert clear_resp.status_code == 200
+    assert "Đã xóa thành công" in clear_resp.json()["message"]
+
+    # Verify demo repos are gone
+    repo_resp2 = client.get("/api/repositories")
+    assert repo_resp2.status_code == 200
+    names = [r["full_name"] for r in repo_resp2.json()["items"]]
+    assert "deepseek-ai/DeepSeek-V3" not in names
+    assert "freeCodeCamp/freeCodeCamp" not in names
+
+    # 3. Test database reset
+    client.post("/api/seed-demo")
+    reset_resp = client.post("/api/database/reset")
+    assert reset_resp.status_code == 200
+    assert "reset cơ sở dữ liệu" in reset_resp.json()["message"]
+
+    repo_resp3 = client.get("/api/repositories")
+    assert repo_resp3.status_code == 200
+    assert repo_resp3.json()["total"] == 0
+

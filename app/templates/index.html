@@ -205,6 +205,16 @@
                   <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-amber-400"></i>
                   <span>Cào ép buộc (+1 count)</span>
                 </button>
+                <div class="border-t border-white/[0.08] my-1"></div>
+                <div class="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Quản lý dữ liệu</div>
+                <button onclick="clearDemoData()" class="w-full text-left px-3 py-2 text-xs text-amber-400/90 hover:bg-amber-500/10 rounded-xl flex items-center gap-2 transition" title="Chỉ xóa các repository mô phỏng demo, giữ lại dữ liệu cào thật">
+                  <i data-lucide="eraser" class="w-3.5 h-3.5 text-amber-400"></i>
+                  <span>Xóa dữ liệu demo</span>
+                </button>
+                <button onclick="resetDatabase()" class="w-full text-left px-3 py-2 text-xs text-rose-400 hover:bg-rose-500/10 rounded-xl flex items-center gap-2 transition" title="Xóa sạch toàn bộ dữ liệu và bắt đầu lại từ đầu">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5 text-rose-400"></i>
+                  <span>Reset toàn bộ DB</span>
+                </button>
               </div>
             </div>
 
@@ -1976,6 +1986,40 @@
 
     function closeGuideModal() {
       document.getElementById("guide-modal").classList.add("hidden");
+    }
+
+    async function clearDemoData() {
+      document.getElementById("crawl-dropdown").classList.add("hidden");
+      if (!confirm("Bạn có chắc chắn muốn xóa 5 repository mô phỏng demo (freeCodeCamp, DeepSeek-V3, shadcn/ui, elixir, browser-use)?")) return;
+      showToast("Đang xóa dữ liệu demo...", "success");
+      try {
+        const res = await fetch("/api/demo/clear", { method: "POST" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Lỗi xóa demo");
+        showToast(data.message, "success");
+        await loadStats();
+        await loadLanguages();
+        setTimeWindow("all");
+      } catch (e) {
+        showToast(`Lỗi: ${e.message}`, "error");
+      }
+    }
+
+    async function resetDatabase() {
+      document.getElementById("crawl-dropdown").classList.add("hidden");
+      if (!confirm("CẢNH BÁO: Hành động này sẽ xóa sạch toàn bộ repositories, snapshots lịch sử và các phiên cào! Bạn có chắc chắn muốn bắt đầu lại từ đầu?")) return;
+      showToast("Đang xóa toàn bộ dữ liệu...", "success");
+      try {
+        const res = await fetch("/api/database/reset", { method: "POST" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Lỗi reset database");
+        showToast("Đã reset toàn bộ database thành công! Bảng dữ liệu đã trắng.", "success");
+        await loadStats();
+        await loadLanguages();
+        setTimeWindow("all");
+      } catch (e) {
+        showToast(`Lỗi: ${e.message}`, "error");
+      }
     }
   </script>
 </body>

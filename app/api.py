@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, asc, func, or_
 
-from app.database import get_db
+from app.database import get_db, Base, engine
 from app.models import Repository, CrawlSession, RepoSnapshot
 from app.crawler import GitHubTrendingCrawler
 from app.scoring import recalculate_all_scores
@@ -667,5 +667,49 @@ def seed_timeline_demo(db: Session = Depends(get_db)):
     return {
         "message": "Đã nạp thành công bộ dữ liệu mô phỏng 12 - 18 tháng cho các trường hợp vòng đời thực tế!",
         "seeded_repositories": seeded_names,
+    }
+
+
+@router.post("/demo/clear")
+def clear_demo_data(db: Session = Depends(get_db)):
+    """
+    Chỉ xóa các repository mô phỏng dữ liệu demo (5 repo demo và session demo),
+    giữ nguyên các repository thu thập thật khác.
+    """
+    demo_repos = [
+        "freeCodeCamp/freeCodeCamp",
+        "deepseek-ai/DeepSeek-V3",
+        "shadcn-ui/ui",
+        "elixir-lang/elixir",
+        "browser-use/browser-use",
+    ]
+    repos = db.query(Repository).filter(Repository.full_name.in_(demo_repos)).all()
+    deleted_count = 0
+    for r in repos:
+        db.query(RepoSnapshot).filter(RepoSnapshot.repo_id == r.id).delete()
+        db.delete(r)
+        deleted_count += 1
+
+    # Xóa các crawl sessions demo
+    db.query(CrawlSession).filter(CrawlSession.error_message == "timeline_demo_session").delete()
+    db.commit()
+
+    return {
+        "message": f"Đã xóa thành công {deleted_count} repository mô phỏng demo và các snapshot liên quan!",
+        "deleted_repositories": demo_repos,
+    }
+
+
+@router.post("/database/reset")
+def reset_database(db: Session = Depends(get_db)):
+    """
+    Xóa sạch toàn bộ dữ liệu và tái cấu trúc database trắng từ đầu.
+    """
+    db.query(RepoSnapshot).delete()
+    db.query(Repository).delete()
+    db.query(CrawlSession).delete()
+    db.commit()
+    return {
+        "message": "Đã xóa toàn bộ dữ liệu và reset cơ sở dữ liệu về trạng thái ban đầu thành công!"
     }
 
